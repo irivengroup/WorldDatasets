@@ -8,7 +8,7 @@ use DateInterval;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use Iriven\WorldDatasets\Infrastructure\Cache\CacheInterface;
-// echo
+
 final class FilesystemCache implements CacheInterface
 {
     public function __construct(
@@ -81,6 +81,9 @@ final class FilesystemCache implements CacheInterface
         return $result;
     }
 
+    /**
+     * @param iterable<string, mixed> $values
+     */
     public function setMultiple(iterable $values, null|int|DateInterval $ttl = null): bool
     {
         foreach ($values as $key => $value) {
