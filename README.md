@@ -843,3 +843,657 @@ composer run doctor
 - immutabilité
 - séparation data/build/runtime
 - source SQLite par défaut
+
+
+---
+
+# Addendum — inventaire des chainages possibles
+
+Cette section complète le README avec un inventaire explicite des enchaînements autorisés sur les **value objects**, les **filtres**, les **collections** et le **query builder**.
+
+> Convention utilisée ci-dessous :
+>
+> - `$countries` est une instance de `Iriven\Countries`
+> - `country()` retourne un `Country`
+> - `countries()` retourne une `CountriesCollection`
+> - `currencies()` retourne une `CurrenciesCollection`
+> - `regions()` retourne une `RegionsCollection`
+> - `query()` retourne une `CountriesQuery`
+
+## 1. Chainages depuis le service principal
+
+### Point d’entrée pays
+
+```php
+$countries->country('FR');
+$countries->findCountry('FR');
+```
+
+### Point d’entrée collections
+
+```php
+$countries->countries();
+$countries->countries('alpha2');
+$countries->countries('alpha3');
+$countries->countries('numeric');
+
+$countries->currencies();
+$countries->regions();
+$countries->query();
+$countries->meta();
+```
+
+---
+
+## 2. Chainages possibles depuis `Country`
+
+## 2.1 Accès direct aux propriétés scalaires
+
+```php
+$countries->country('FR')->alpha2();
+$countries->country('FR')->alpha3();
+$countries->country('FR')->numeric();
+$countries->country('FR')->name();
+$countries->country('FR')->capital();
+$countries->country('FR')->tld();
+$countries->country('FR')->language();
+$countries->country('FR')->languages();
+$countries->country('FR')->postalCodePattern();
+$countries->country('FR')->exists();
+$countries->country('FR')->data();
+$countries->country('FR')->all();
+$countries->country('FR')->toArray();
+$countries->country('FR')->toIndexedArray();
+$countries->country('FR')->jsonSerialize();
+```
+
+## 2.2 Chainages vers les value objects
+
+```php
+$countries->country('FR')->currency();
+$countries->country('FR')->region();
+$countries->country('FR')->phone();
+```
+
+## 2.3 Chainages métier
+
+```php
+$countries->country('FR')->hasCurrency('EUR');
+$countries->country('FR')->isInRegion('Europe');
+```
+
+---
+
+## 3. Chainages possibles depuis `CurrencyInfo`
+
+Point d’entrée :
+
+```php
+$currency = $countries->country('FR')->currency();
+```
+
+### Méthodes publiques
+
+```php
+$currency->code();
+$currency->name();
+$currency->toArray();
+$currency->jsonSerialize();
+(string) $currency;
+```
+
+### Exemples
+
+```php
+$countries->country('FR')->currency()->code();
+$countries->country('FR')->currency()->name();
+$countries->country('FR')->currency()->toArray();
+```
+
+---
+
+## 4. Chainages possibles depuis `RegionInfo`
+
+Point d’entrée :
+
+```php
+$region = $countries->country('FR')->region();
+```
+
+### Méthodes publiques
+
+```php
+$region->alphaCode();
+$region->numericCode();
+$region->name();
+$region->subRegion();
+$region->toArray();
+$region->jsonSerialize();
+(string) $region;
+```
+
+### Chainages complets
+
+```php
+$countries->country('FR')->region()->alphaCode();
+$countries->country('FR')->region()->numericCode();
+$countries->country('FR')->region()->name();
+$countries->country('FR')->region()->toArray();
+$countries->country('FR')->region()->jsonSerialize();
+```
+
+### Passage vers `SubRegionInfo`
+
+```php
+$countries->country('FR')->region()->subRegion();
+$countries->country('FR')->region()->subRegion()->code();
+$countries->country('FR')->region()->subRegion()->Code();
+$countries->country('FR')->region()->subRegion()->name();
+$countries->country('FR')->region()->subRegion()->Name();
+$countries->country('FR')->region()->subRegion()->toArray();
+$countries->country('FR')->region()->subRegion()->jsonSerialize();
+```
+
+---
+
+## 5. Chainages possibles depuis `SubRegionInfo`
+
+Point d’entrée :
+
+```php
+$subRegion = $countries->country('FR')->region()->subRegion();
+```
+
+### Méthodes publiques
+
+```php
+$subRegion->code();
+$subRegion->Code();
+$subRegion->name();
+$subRegion->Name();
+$subRegion->toArray();
+$subRegion->jsonSerialize();
+(string) $subRegion;
+```
+
+---
+
+## 6. Chainages possibles depuis `PhoneInfo`
+
+Point d’entrée :
+
+```php
+$phone = $countries->country('FR')->phone();
+```
+
+### Méthodes publiques
+
+```php
+$phone->code();
+$phone->internationalPrefix();
+$phone->nationalPrefix();
+$phone->subscriberPattern();
+$phone->pattern();
+$phone->toArray();
+$phone->jsonSerialize();
+(string) $phone;
+```
+
+### Exemples détaillés
+
+```php
+$countries->country('FR')->phone()->code();
+$countries->country('FR')->phone()->internationalPrefix();
+$countries->country('FR')->phone()->nationalPrefix();
+$countries->country('FR')->phone()->subscriberPattern();
+$countries->country('FR')->phone()->pattern();
+$countries->country('FR')->phone()->toArray();
+```
+
+---
+
+## 7. Chainages possibles depuis `CountriesCollection`
+
+Point d’entrée :
+
+```php
+$collection = $countries->countries();
+```
+
+## 7.1 Sélection du format de code
+
+```php
+$countries->countries()->alpha2();
+$countries->countries()->alpha3();
+$countries->countries()->numeric();
+```
+
+Chainages usuels :
+
+```php
+$countries->countries()->alpha2()->list();
+$countries->countries()->alpha3()->list();
+$countries->countries()->numeric()->list();
+
+$countries->countries()->alpha2()->codes();
+$countries->countries()->alpha3()->codes();
+$countries->countries()->numeric()->codes();
+```
+
+## 7.2 Filtres chaînables
+
+Tous ces filtres peuvent s’enchaîner librement entre eux, puis avec les méthodes de tri, pagination, extraction ou export.
+
+```php
+$countries->countries()->inRegion('Europe');
+$countries->countries()->inSubRegion('Western Europe');
+$countries->countries()->withCurrency('EUR');
+$countries->countries()->withPhoneCode('+33');
+$countries->countries()->withTld('.fr');
+$countries->countries()->named('France');
+$countries->countries()->matching('fr');
+```
+
+## 7.3 Tri et pagination
+
+```php
+$countries->countries()->sortByName();
+$countries->countries()->sortByCode();
+$countries->countries()->sortByNumeric();
+$countries->countries()->paginate(0, 10);
+```
+
+## 7.4 Accès ponctuel
+
+```php
+$countries->countries()->first();
+$countries->countries()->last();
+$countries->countries()->count();
+$countries->countries()->isEmpty();
+$countries->countries()->isNotEmpty();
+$countries->countries()->contains('FR');
+$countries->countries()->containsCountry('FR');
+$countries->countries()->containsCountry($countries->country('FR'));
+$countries->countries()->containsCountry(fn ($country) => $country->hasCurrency('EUR'));
+$countries->countries()->chunk(50);
+```
+
+## 7.5 Extraction / restitution
+
+```php
+$countries->countries()->values();
+$countries->countries()->names();
+$countries->countries()->codes();
+$countries->countries()->list();
+$countries->countries()->exportArray();
+$countries->countries()->toStorageArray();
+$countries->countries()->toApiArray();
+$countries->countries()->toArray();
+$countries->countries()->jsonSerialize();
+```
+
+## 7.6 Agrégations
+
+```php
+$countries->countries()->stats();
+$countries->countries()->groupByRegion();
+$countries->countries()->groupByCurrency();
+$countries->countries()->pluckNames();
+$countries->countries()->pluckCodes();
+```
+
+## 7.7 Fonctionnel
+
+```php
+$countries->countries()->map(fn ($country) => $country->name());
+$countries->countries()->filter(fn ($country) => $country->hasCurrency('EUR'));
+$countries->countries()->reduce(fn ($carry, $country) => $carry + 1, 0);
+```
+
+## 7.8 Export
+
+```php
+$countries->countries()->toJson();
+$countries->countries()->toCsv();
+$countries->countries()->exportJsonFile('/tmp/countries.json');
+$countries->countries()->exportCsvFile('/tmp/countries.csv');
+```
+
+## 7.9 Exemples de chainages libres
+
+### Exemple 1
+
+```php
+$countries->countries()
+    ->inRegion('Europe')
+    ->withCurrency('EUR')
+    ->alpha2()
+    ->sortByName()
+    ->list();
+```
+
+### Exemple 2
+
+```php
+$countries->countries()
+    ->inRegion('Europe')
+    ->inSubRegion('Western Europe')
+    ->withCurrency('EUR')
+    ->matching('fr')
+    ->sortByCode()
+    ->paginate(0, 20)
+    ->values();
+```
+
+### Exemple 3
+
+```php
+$countries->countries()
+    ->withTld('.fr')
+    ->withPhoneCode('+33')
+    ->alpha3()
+    ->codes();
+```
+
+### Exemple 4
+
+```php
+$countries->countries()
+    ->matching('united')
+    ->sortByNumeric()
+    ->pluckNames();
+```
+
+### Exemple 5
+
+```php
+$countries->countries()
+    ->filter(fn ($country) => $country->region()->name() === 'Europe')
+    ->map(fn ($country) => [
+        'code' => $country->alpha2(),
+        'name' => $country->name(),
+        'currency' => $country->currency()->code(),
+    ]);
+```
+
+### Exemple 6
+
+```php
+$countries->countries()
+    ->inRegion('Asia')
+    ->sortByName()
+    ->exportJsonFile('/tmp/asia.json');
+```
+
+### Exemple 7
+
+```php
+$countries->countries()
+    ->inRegion('Americas')
+    ->groupByCurrency();
+```
+
+---
+
+## 8. Chainages possibles depuis `CurrenciesCollection`
+
+Point d’entrée :
+
+```php
+$currencies = $countries->currencies();
+```
+
+### Méthodes publiques
+
+```php
+$currencies->values();
+$currencies->list();
+$currencies->countries();
+$currencies->exportArray();
+$currencies->toJson();
+$currencies->toCsv();
+$currencies->exportJsonFile('/tmp/currencies.json');
+$currencies->exportCsvFile('/tmp/currencies.csv');
+$currencies->toArray();
+$currencies->jsonSerialize();
+```
+
+### Exemples
+
+```php
+$countries->currencies()->list();
+$countries->currencies()->values();
+$countries->currencies()->countries();
+$countries->currencies()->toJson();
+$countries->currencies()->exportCsvFile('/tmp/currencies.csv');
+```
+
+---
+
+## 9. Chainages possibles depuis `RegionsCollection`
+
+Point d’entrée :
+
+```php
+$regions = $countries->regions();
+```
+
+### Méthodes publiques
+
+```php
+$regions->values();
+$regions->list();
+$regions->countries();
+$regions->exportArray();
+$regions->toJson();
+$regions->toCsv();
+$regions->exportJsonFile('/tmp/regions.json');
+$regions->exportCsvFile('/tmp/regions.csv');
+$regions->toArray();
+$regions->jsonSerialize();
+```
+
+### Exemples
+
+```php
+$countries->regions()->list();
+$countries->regions()->values();
+$countries->regions()->countries();
+$countries->regions()->toJson();
+$countries->regions()->exportCsvFile('/tmp/regions.csv');
+```
+
+---
+
+## 10. Chainages possibles depuis `CountriesQuery`
+
+Point d’entrée :
+
+```php
+$query = $countries->query();
+```
+
+### Filtres / tri / pagination
+
+```php
+$query->inRegion('Europe');
+$query->inSubRegion('Western Europe');
+$query->withCurrency('EUR');
+$query->withPhoneCode('+33');
+$query->withTld('.fr');
+$query->matching('fr');
+$query->sortByName();
+$query->sortByCode();
+$query->sortByNumeric();
+$query->limit(20);
+$query->offset(0, 20);
+```
+
+### Résolution finale
+
+```php
+$query->get();
+$query->list();
+```
+
+### Exemples complets
+
+```php
+$countries->query()
+    ->inRegion('Europe')
+    ->withCurrency('EUR')
+    ->sortByName()
+    ->limit(20)
+    ->get();
+```
+
+```php
+$countries->query()
+    ->inRegion('Europe')
+    ->inSubRegion('Western Europe')
+    ->matching('fr')
+    ->sortByCode()
+    ->offset(0, 10)
+    ->list();
+```
+
+```php
+$countries->query()
+    ->withTld('.fr')
+    ->withPhoneCode('+33')
+    ->get();
+```
+
+---
+
+## 11. Chainages possibles depuis `MetaInfo`
+
+Point d’entrée :
+
+```php
+$meta = $countries->meta();
+```
+
+### Méthodes publiques
+
+```php
+$meta->count();
+$meta->source();
+$meta->version();
+$meta->lastUpdatedAt();
+$meta->packageVersion();
+$meta->datasetVersion();
+$meta->checksum();
+$meta->builtAt();
+$meta->toArray();
+$meta->jsonSerialize();
+```
+
+### Exemples
+
+```php
+$countries->meta()->source();
+$countries->meta()->datasetVersion();
+$countries->meta()->checksum();
+$countries->meta()->builtAt();
+$countries->meta()->toArray();
+```
+
+---
+
+## 12. Chainages liés au factory et à la config runtime
+
+### Factory directe
+
+```php
+Iriven\CountriesServiceFactory::make();
+Iriven\CountriesServiceFactory::make(Iriven\CountriesServiceFactory::defaultSqlitePath());
+Iriven\CountriesServiceFactory::make(Iriven\CountriesServiceFactory::defaultJsonPath());
+Iriven\CountriesServiceFactory::make(Iriven\CountriesServiceFactory::defaultCsvPath());
+```
+
+### Factory avec config
+
+```php
+$config = new Iriven\CountriesRuntimeConfig(
+    sourcePath: Iriven\CountriesServiceFactory::defaultSqlitePath(),
+    verifyChecksum: true,
+    strictValidation: true,
+);
+
+$countries = Iriven\CountriesServiceFactory::fromConfig($config);
+```
+
+### Validation stricte
+
+```php
+Iriven\CountriesServiceFactory::makeWithValidation();
+```
+
+### Checksum
+
+```php
+Iriven\CountriesServiceFactory::assertChecksum(
+    Iriven\CountriesServiceFactory::defaultSqlitePath()
+);
+```
+
+---
+
+## 13. Résumé des familles de chainage
+
+### 13.1 Service -> Country -> Value Object -> propriété
+
+```php
+$countries->country('FR')->region()->subRegion()->name();
+$countries->country('FR')->currency()->code();
+$countries->country('FR')->phone()->pattern();
+```
+
+### 13.2 Service -> CountriesCollection -> filtres -> tri -> sortie
+
+```php
+$countries->countries()
+    ->inRegion('Europe')
+    ->withCurrency('EUR')
+    ->sortByName()
+    ->list();
+```
+
+### 13.3 Service -> CountriesCollection -> fonctionnel -> sortie
+
+```php
+$countries->countries()
+    ->filter(fn ($country) => $country->hasCurrency('EUR'))
+    ->map(fn ($country) => $country->name());
+```
+
+### 13.4 Service -> Query -> résultat
+
+```php
+$countries->query()
+    ->matching('fr')
+    ->limit(10)
+    ->get();
+```
+
+### 13.5 Service -> collection spécialisée -> export
+
+```php
+$countries->currencies()->exportJsonFile('/tmp/currencies.json');
+$countries->regions()->exportCsvFile('/tmp/regions.csv');
+```
+
+---
+
+## 14. Important
+
+Les chainages ci-dessus sont donnés **sans restriction artificielle** :  
+tout ce qui est exposé publiquement par les objets peut être combiné dans l’ordre logique du type retourné.
+
+En pratique :
+
+- un `Country` peut chaîner vers ses value objects
+- une `CountriesCollection` peut enchaîner filtres, tri, pagination, extraction, agrégation, export
+- un `CountriesQuery` peut enchaîner filtres, tri et pagination avant `get()` ou `list()`
+- `CurrenciesCollection` et `RegionsCollection` peuvent aller jusqu’à l’export final
