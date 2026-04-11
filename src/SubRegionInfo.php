@@ -19,19 +19,9 @@ final class SubRegionInfo implements Arrayable, \JsonSerializable
         return $this->code;
     }
 
-    public function Code(): string
-    {
-        return $this->code();
-    }
-
     public function name(): string
     {
         return $this->name;
-    }
-
-    public function Name(): string
-    {
-        return $this->name();
     }
 
     public function toArray(): array

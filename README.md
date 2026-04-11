@@ -1047,9 +1047,9 @@ $worldDatasets->country('FR')->region()->jsonSerialize();
 ```php
 $worldDatasets->country('FR')->region()->subRegion();
 $worldDatasets->country('FR')->region()->subRegion()->code();
-$worldDatasets->country('FR')->region()->subRegion()->Code();
+$worldDatasets->country('FR')->region()->subRegion()->code();
 $worldDatasets->country('FR')->region()->subRegion()->name();
-$worldDatasets->country('FR')->region()->subRegion()->Name();
+$worldDatasets->country('FR')->region()->subRegion()->name();
 $worldDatasets->country('FR')->region()->subRegion()->toArray();
 $worldDatasets->country('FR')->region()->subRegion()->jsonSerialize();
 ```
@@ -1068,9 +1068,9 @@ $subRegion = $worldDatasets->country('FR')->region()->subRegion();
 
 ```php
 $subRegion->code();
-$subRegion->Code();
+$subRegion->code();
 $subRegion->name();
-$subRegion->Name();
+$subRegion->name();
 $subRegion->toArray();
 $subRegion->jsonSerialize();
 (string) $subRegion;
