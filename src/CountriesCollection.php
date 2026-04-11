@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Iriven;
 
 use Iriven\Contract\Arrayable;
-use Iriven\Exception\ExportException;
+use Iriven\Exporter\CsvExporter;
+use Iriven\Exporter\JsonExporter;
 
 final class CountriesCollection implements Arrayable, \JsonSerializable
 {
@@ -112,10 +113,40 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
     public function values(): array { return $this->countries; }
     public function names(): array { return $this->list(); }
     public function codes(): array { return array_keys($this->list()); }
+    public function count(): int { return count($this->countries); }
+    public function isEmpty(): bool { return $this->countries === []; }
+    public function isNotEmpty(): bool { return !$this->isEmpty(); }
 
-    public function count(): int
+    public function contains(string $code): bool
     {
-        return count($this->countries);
+        return (new WorldDatasets(new ArrayCountryRepository($this->countries)))->findCountry($code) !== null;
+    }
+
+    public function containsCountry(callable|Country|string $value): bool
+    {
+        if ($value instanceof Country) {
+            return $this->contains($value->alpha2());
+        }
+
+        if (is_string($value)) {
+            return $this->contains($value);
+        }
+
+        foreach ($this->countries as $country) {
+            if ($value($country) === true) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function chunk(int $size): array
+    {
+        return array_map(
+            fn(array $chunk): self => new self($chunk, $this->format),
+            array_chunk($this->countries, max(1, $size))
+        );
     }
 
     public function stats(): CountriesStats
@@ -207,40 +238,22 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
 
     public function toJson(int $flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE): string
     {
-        return (string) json_encode($this->exportArray(), $flags);
+        return (new JsonExporter())->export($this->exportArray(), $flags);
     }
 
     public function toCsv(): string
     {
-        $rows = $this->exportArray();
-        if ($rows === []) {
-            return '';
-        }
-        $stream = fopen('php://temp', 'r+');
-        fputcsv($stream, array_keys($rows[0]));
-        foreach ($rows as $row) {
-            $flat = [];
-            foreach ($row as $key => $value) {
-                $flat[$key] = is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : $value;
-            }
-            fputcsv($stream, $flat);
-        }
-        rewind($stream);
-        return (string) stream_get_contents($stream);
+        return (new CsvExporter())->export($this->exportArray());
     }
 
     public function exportJsonFile(string $path): void
     {
-        if (file_put_contents($path, $this->toJson()) === false) {
-            throw new ExportException(sprintf('Unable to write JSON file: %s', $path));
-        }
+        (new JsonExporter())->exportFile($path, $this->exportArray());
     }
 
     public function exportCsvFile(string $path): void
     {
-        if (file_put_contents($path, $this->toCsv()) === false) {
-            throw new ExportException(sprintf('Unable to write CSV file: %s', $path));
-        }
+        (new CsvExporter())->exportFile($path, $this->exportArray());
     }
 
     public function toStorageArray(): array

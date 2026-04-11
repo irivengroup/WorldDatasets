@@ -1,18 +1,16 @@
+#!/usr/bin/env php
 <?php
 
 declare(strict_types=1);
 
 use Iriven\CountriesServiceFactory;
 use Iriven\DataSource;
+use Iriven\DatasetValidator;
 use PDO;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $sourceFile = CountriesServiceFactory::defaultSqlitePath();
-if (!is_file($sourceFile)) {
-    throw new RuntimeException(sprintf('Source file not found: %s', $sourceFile));
-}
-
 $service = CountriesServiceFactory::make($sourceFile);
 $records = $service->countries()->sortByCode()->exportArray();
 
@@ -26,10 +24,6 @@ $headers = [
 ];
 
 $targetDir = __DIR__ . '/../src/data';
-if (!is_dir($targetDir) && !mkdir($targetDir, 0775, true) && !is_dir($targetDir)) {
-    throw new RuntimeException(sprintf('Unable to create directory: %s', $targetDir));
-}
-
 $normalizedRecords = array_map(
     static function (array $row): array {
         return [
@@ -57,15 +51,9 @@ $normalizedRecords = array_map(
     $records
 );
 
-file_put_contents(
-    $targetDir . '/' . DataSource::JSON,
-    json_encode($normalizedRecords, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
-);
+file_put_contents($targetDir . '/' . DataSource::JSON, json_encode($normalizedRecords, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
 $csv = fopen($targetDir . '/' . DataSource::CSV, 'wb');
-if ($csv === false) {
-    throw new RuntimeException('Unable to open CSV output file.');
-}
 fputcsv($csv, $headers);
 foreach ($normalizedRecords as $record) {
     fputcsv($csv, $record);
@@ -79,50 +67,42 @@ if (is_file($sqliteFile)) {
 
 $pdo = new PDO('sqlite:' . $sqliteFile);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-$pdo->exec(
-    'CREATE TABLE countries (
-        alpha2 TEXT PRIMARY KEY,
-        alpha3 TEXT NOT NULL UNIQUE,
-        numeric_code TEXT NOT NULL UNIQUE,
-        country_name TEXT NOT NULL,
-        capital TEXT,
-        tld TEXT,
-        region_alpha_code TEXT,
-        region_num_code TEXT,
-        region_name TEXT,
-        sub_region_code TEXT,
-        sub_region_name TEXT,
-        language TEXT,
-        currency_code TEXT,
-        currency_name TEXT,
-        postal_code_pattern TEXT,
-        phone_code TEXT,
-        intl_dialing_prefix TEXT,
-        natl_dialing_prefix TEXT,
-        subscriber_phone_pattern TEXT
-    )'
-);
-
+$pdo->exec('CREATE TABLE countries (
+    alpha2 TEXT PRIMARY KEY,
+    alpha3 TEXT NOT NULL UNIQUE,
+    numeric_code TEXT NOT NULL UNIQUE,
+    country_name TEXT NOT NULL,
+    capital TEXT,
+    tld TEXT,
+    region_alpha_code TEXT,
+    region_num_code TEXT,
+    region_name TEXT,
+    sub_region_code TEXT,
+    sub_region_name TEXT,
+    language TEXT,
+    currency_code TEXT,
+    currency_name TEXT,
+    postal_code_pattern TEXT,
+    phone_code TEXT,
+    intl_dialing_prefix TEXT,
+    natl_dialing_prefix TEXT,
+    subscriber_phone_pattern TEXT
+)');
 $pdo->exec('CREATE INDEX idx_countries_alpha3 ON countries(alpha3)');
 $pdo->exec('CREATE INDEX idx_countries_numeric_code ON countries(numeric_code)');
 $pdo->exec('CREATE INDEX idx_countries_region_name ON countries(region_name)');
 $pdo->exec('CREATE INDEX idx_countries_currency_code ON countries(currency_code)');
 
-$insert = $pdo->prepare(
-    'INSERT INTO countries (
-        alpha2, alpha3, numeric_code, country_name, capital, tld, region_alpha_code, region_num_code,
-        region_name, sub_region_code, sub_region_name, language, currency_code, currency_name,
-        postal_code_pattern, phone_code, intl_dialing_prefix, natl_dialing_prefix, subscriber_phone_pattern
-    ) VALUES (
-        :alpha2, :alpha3, :numeric_code, :country_name, :capital, :tld, :region_alpha_code, :region_num_code,
-        :region_name, :sub_region_code, :sub_region_name, :language, :currency_code, :currency_name,
-        :postal_code_pattern, :phone_code, :intl_dialing_prefix, :natl_dialing_prefix, :subscriber_phone_pattern
-    )'
-);
-
+$insert = $pdo->prepare('INSERT INTO countries (
+    alpha2, alpha3, numeric_code, country_name, capital, tld, region_alpha_code, region_num_code,
+    region_name, sub_region_code, sub_region_name, language, currency_code, currency_name,
+    postal_code_pattern, phone_code, intl_dialing_prefix, natl_dialing_prefix, subscriber_phone_pattern
+) VALUES (
+    :alpha2, :alpha3, :numeric_code, :country_name, :capital, :tld, :region_alpha_code, :region_num_code,
+    :region_name, :sub_region_code, :sub_region_name, :language, :currency_code, :currency_name,
+    :postal_code_pattern, :phone_code, :intl_dialing_prefix, :natl_dialing_prefix, :subscriber_phone_pattern
+)');
 $pdo->beginTransaction();
-
 foreach ($normalizedRecords as $record) {
     $insert->execute([
         ':alpha2' => $record['alpha2'],
@@ -146,7 +126,28 @@ foreach ($normalizedRecords as $record) {
         ':subscriber_phone_pattern' => $record['subscriber_phone_pattern'],
     ]);
 }
-
 $pdo->commit();
 
-echo 'Data files regenerated in ' . $targetDir . PHP_EOL;
+$validator = new DatasetValidator();
+$report = $validator->validate($service->countries()->values(), false);
+file_put_contents($targetDir . '/.countriesRepository.validation.json', json_encode($report->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+$checksums = [];
+foreach ([DataSource::SQLITE, DataSource::JSON, DataSource::CSV] as $fileName) {
+    $fullPath = $targetDir . '/' . $fileName;
+    $checksums[$fileName] = hash_file('sha256', $fullPath);
+}
+file_put_contents(
+    $targetDir . '/.countriesRepository.sha256',
+    implode(PHP_EOL, array_map(static fn(string $name, string $hash): string => $hash . '  ' . $name, array_keys($checksums), $checksums)) . PHP_EOL
+);
+file_put_contents(
+    $targetDir . '/.countriesRepository.meta.json',
+    json_encode([
+        'dataset_version' => '2026.04.11',
+        'built_at' => gmdate('c'),
+        'checksums' => $checksums,
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+);
+
+echo 'Dataset build completed.' . PHP_EOL;

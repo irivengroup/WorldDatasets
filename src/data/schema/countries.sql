@@ -1,0 +1,21 @@
+CREATE TABLE countries (
+    alpha2 TEXT PRIMARY KEY,
+    alpha3 TEXT NOT NULL UNIQUE,
+    numeric_code TEXT NOT NULL UNIQUE,
+    country_name TEXT NOT NULL,
+    capital TEXT,
+    tld TEXT,
+    region_alpha_code TEXT,
+    region_num_code TEXT,
+    region_name TEXT,
+    sub_region_code TEXT,
+    sub_region_name TEXT,
+    language TEXT,
+    currency_code TEXT,
+    currency_name TEXT,
+    postal_code_pattern TEXT,
+    phone_code TEXT,
+    intl_dialing_prefix TEXT,
+    natl_dialing_prefix TEXT,
+    subscriber_phone_pattern TEXT
+);

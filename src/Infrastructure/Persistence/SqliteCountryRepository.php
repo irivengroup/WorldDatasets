@@ -8,7 +8,7 @@ use Iriven\Contract\CountryRepositoryInterface;
 use Iriven\Country;
 use Iriven\Exception\RepositoryException;
 use Iriven\Infrastructure\Cache\CacheInterface;
-use Iriven\Support\CountryCodeNormalizer;
+use Iriven\CountryCodeNormalizer;
 use PDO;
 use PDOException;
 use Psr\Log\LoggerInterface;

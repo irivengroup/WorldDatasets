@@ -33,6 +33,8 @@
     "analyse": "phpstan analyse",
     "test": "phpunit",
     "countries": "php bin/countries",
-    "import": "php bin/import_countries.php"
+    "build-data": "php bin/build_data.php",
+    "check-data": "php bin/check_data.php",
+    "doctor": "php bin/countries-doctor"
   }
 }

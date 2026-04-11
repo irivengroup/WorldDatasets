@@ -1,0 +1,40 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Iriven\CountriesServiceFactory;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+$issues = [];
+
+foreach ([
+    CountriesServiceFactory::defaultSqlitePath(),
+    CountriesServiceFactory::defaultJsonPath(),
+    CountriesServiceFactory::defaultCsvPath(),
+] as $path) {
+    if (!is_file($path)) {
+        $issues[] = 'Missing file: ' . $path;
+    }
+}
+
+try {
+    $service = CountriesServiceFactory::make();
+    $service->country('FR');
+    $service->country('US');
+    $service->country('JP');
+} catch (Throwable $e) {
+    $issues[] = 'Resolution check failed: ' . $e->getMessage();
+}
+
+if ($issues === []) {
+    echo "OK
+";
+    exit(0);
+}
+
+foreach ($issues as $issue) {
+    echo $issue . PHP_EOL;
+}
+exit(1);

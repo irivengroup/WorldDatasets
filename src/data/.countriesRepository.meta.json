@@ -1,0 +1,9 @@
+{
+  "dataset_version": "2026.04.11",
+  "built_at": "2026-04-11T12:00:15Z",
+  "checksums": {
+    ".countriesRepository.sqlite": "8fc70f882630e8b6496940168fc06e6077eaed47ea2ca5d63c694e16a665e78f",
+    ".countriesRepository.json": "83acbe1066ab8f053b31506829c2e84083418c54469ad0be40ee7554a2053be0",
+    "countriesRepository.csv": "b45a87787ab28883a528459bfbd60ad581d1e00d42b4b456276fdd6341bba329"
+  }
+}

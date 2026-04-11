@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Iriven;
 
 use Iriven\Contract\Arrayable;
-use Iriven\Exception\ExportException;
+use Iriven\Exporter\CsvExporter;
+use Iriven\Exporter\JsonExporter;
 
 final class CurrenciesCollection implements Arrayable, \JsonSerializable
 {
@@ -63,36 +64,22 @@ final class CurrenciesCollection implements Arrayable, \JsonSerializable
 
     public function toJson(int $flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE): string
     {
-        return (string) json_encode($this->exportArray(), $flags);
+        return (new JsonExporter())->export($this->exportArray(), $flags);
     }
 
     public function toCsv(): string
     {
-        $rows = $this->exportArray();
-        if ($rows === []) {
-            return '';
-        }
-        $stream = fopen('php://temp', 'r+');
-        fputcsv($stream, array_keys($rows[0]));
-        foreach ($rows as $row) {
-            fputcsv($stream, $row);
-        }
-        rewind($stream);
-        return (string) stream_get_contents($stream);
+        return (new CsvExporter())->export($this->exportArray());
     }
 
     public function exportJsonFile(string $path): void
     {
-        if (file_put_contents($path, $this->toJson()) === false) {
-            throw new ExportException(sprintf('Unable to write JSON file: %s', $path));
-        }
+        (new JsonExporter())->exportFile($path, $this->exportArray());
     }
 
     public function exportCsvFile(string $path): void
     {
-        if (file_put_contents($path, $this->toCsv()) === false) {
-            throw new ExportException(sprintf('Unable to write CSV file: %s', $path));
-        }
+        (new CsvExporter())->exportFile($path, $this->exportArray());
     }
 
     public function toArray(): array { return $this->exportArray(); }

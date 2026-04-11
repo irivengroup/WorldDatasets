@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Country",
+  "type": "object",
+  "required": [
+    "alpha2",
+    "alpha3",
+    "numeric_code",
+    "country_name"
+  ],
+  "properties": {
+    "alpha2": {
+      "type": "string"
+    },
+    "alpha3": {
+      "type": "string"
+    },
+    "numeric_code": {
+      "type": "string"
+    },
+    "country_name": {
+      "type": "string"
+    },
+    "capital": {
+      "type": "string"
+    },
+    "tld": {
+      "type": "string"
+    },
+    "region_alpha_code": {
+      "type": "string"
+    },
+    "region_num_code": {
+      "type": "string"
+    },
+    "region_name": {
+      "type": "string"
+    },
+    "sub_region_code": {
+      "type": "string"
+    },
+    "sub_region_name": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string"
+    },
+    "currency_code": {
+      "type": "string"
+    },
+    "currency_name": {
+      "type": "string"
+    },
+    "postal_code_pattern": {
+      "type": "string"
+    },
+    "phone_code": {
+      "type": "string"
+    },
+    "intl_dialing_prefix": {
+      "type": "string"
+    },
+    "natl_dialing_prefix": {
+      "type": "string"
+    },
+    "subscriber_phone_pattern": {
+      "type": "string"
+    }
+  }
+}

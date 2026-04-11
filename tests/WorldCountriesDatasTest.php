@@ -9,7 +9,7 @@ use Iriven\CountryCodeFormat;
 use Iriven\DatasetValidator;
 use PHPUnit\Framework\TestCase;
 
-final class WorldCountriesDatasTest extends TestCase
+final class WorldDatasetsTest extends TestCase
 {
     private \Iriven\Countries $service;
 
