@@ -1,6 +1,11 @@
 
 # PHP World Datasets
 
+[![Build Status](https://scrutinizer-ci.com/g/iriven/GeoIP2Country/badges/build.png?b=master)](https://scrutinizer-ci.com/g/iriven/GeoIP2Country/build-status/master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/iriven/GeoIP2Country/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/iriven/GeoIP2Country/?branch=master)
+[![Code Intelligence Status](https://scrutinizer-ci.com/g/iriven/GeoIP2Country/badges/code-intelligence.svg?b=master)](https://scrutinizer-ci.com/code-intelligence)
+[![GitHub license](https://img.shields.io/badge/license-AGPL-blue.svg)](https://github.com/iriven/GeoIP2Country/blob/master/LICENSE)
+
 Bibliothèque PHP orientée entreprise pour consulter, filtrer, exporter et valider des données pays avec source principale SQLite, sources dérivées JSON/CSV, collections fluentes, value objects, pipeline de build et intégrations Symfony/Laravel.
 
 ---
