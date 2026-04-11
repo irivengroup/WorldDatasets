@@ -14,6 +14,8 @@ use RuntimeException;
 
 final class CountriesServiceFactory
 {
+    private static ?array $metaCache = null;
+
     public static function make(?string $sourcePath = null): Countries
     {
         return self::fromConfig(new CountriesRuntimeConfig(sourcePath: $sourcePath));
@@ -107,42 +109,29 @@ final class CountriesServiceFactory
 
     public static function datasetVersion(): string
     {
-        $metaPath = self::datasetMetaPath();
-        if (!is_file($metaPath)) {
-            return 'unknown';
-        }
-
-        $data = json_decode((string) file_get_contents($metaPath), true);
-
-        return is_array($data) ? (string) ($data['dataset_version'] ?? 'unknown') : 'unknown';
+        $data = self::metaData();
+        return (string) ($data['dataset_version'] ?? 'unknown');
     }
 
     public static function builtAt(): ?string
     {
-        $metaPath = self::datasetMetaPath();
-        if (!is_file($metaPath)) {
-            return null;
-        }
-
-        $data = json_decode((string) file_get_contents($metaPath), true);
-
+        $data = self::metaData();
         return is_array($data) ? ($data['built_at'] ?? null) : null;
     }
 
     public static function checksumFor(string $path): ?string
     {
-        return is_file($path) ? hash_file('sha256', $path) ?: null : null;
+        return is_file($path) ? (hash_file('sha256', $path) ?: null) : null;
     }
 
     public static function assertChecksum(string $path): void
     {
-        $metaPath = self::datasetMetaPath();
-        if (!is_file($metaPath) || !is_file($path)) {
-            throw new RuntimeException('Missing dataset metadata or source file.');
+        if (!is_file($path)) {
+            throw new RuntimeException('Missing source file.');
         }
 
-        $data = json_decode((string) file_get_contents($metaPath), true);
-        if (!is_array($data) || !isset($data['checksums'][basename($path)])) {
+        $data = self::metaData();
+        if (!isset($data['checksums'][basename($path)])) {
             throw new RuntimeException('Missing checksum entry for source file.');
         }
 
@@ -152,6 +141,24 @@ final class CountriesServiceFactory
         if ($actual !== $expected) {
             throw new RuntimeException(sprintf('Checksum mismatch for %s.', basename($path)));
         }
+    }
+
+    private static function metaData(): array
+    {
+        if (self::$metaCache !== null) {
+            return self::$metaCache;
+        }
+
+        $metaPath = self::datasetMetaPath();
+        if (!is_file($metaPath)) {
+            self::$metaCache = [];
+            return self::$metaCache;
+        }
+
+        $data = json_decode((string) file_get_contents($metaPath), true);
+        self::$metaCache = is_array($data) ? $data : [];
+
+        return self::$metaCache;
     }
 
     private static function detectSourceName(string $path): string

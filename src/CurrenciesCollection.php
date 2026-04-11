@@ -10,6 +10,11 @@ use Iriven\Exporter\JsonExporter;
 
 final class CurrenciesCollection implements Arrayable, \JsonSerializable
 {
+    private ?array $cachedValues = null;
+    private ?array $cachedList = null;
+    private ?array $cachedCountries = null;
+    private ?array $cachedExportArray = null;
+
     public function __construct(
         private readonly array $countries,
     ) {
@@ -17,6 +22,10 @@ final class CurrenciesCollection implements Arrayable, \JsonSerializable
 
     public function values(): array
     {
+        if ($this->cachedValues !== null) {
+            return $this->cachedValues;
+        }
+
         $result = [];
         foreach ($this->countries as $country) {
             $currency = $country->currency();
@@ -26,25 +35,31 @@ final class CurrenciesCollection implements Arrayable, \JsonSerializable
             $result[$currency->code()] = $currency;
         }
         ksort($result);
-        return array_values($result);
+
+        return $this->cachedValues = array_values($result);
     }
 
     public function list(): array
     {
+        if ($this->cachedList !== null) {
+            return $this->cachedList;
+        }
+
         $result = [];
-        foreach ($this->countries as $country) {
-            $currency = $country->currency();
-            if ($currency->code() === '') {
-                continue;
-            }
+        foreach ($this->values() as $currency) {
             $result[$currency->code()] = $currency->name();
         }
         asort($result);
-        return $result;
+
+        return $this->cachedList = $result;
     }
 
     public function countries(): array
     {
+        if ($this->cachedCountries !== null) {
+            return $this->cachedCountries;
+        }
+
         $result = [];
         foreach ($this->countries as $country) {
             $currency = $country->currency();
@@ -54,12 +69,22 @@ final class CurrenciesCollection implements Arrayable, \JsonSerializable
             $result[$currency->code()][$country->alpha2()] = $country->name();
         }
         ksort($result);
-        return $result;
+
+        return $this->cachedCountries = $result;
     }
 
     public function exportArray(): array
     {
-        return array_map(static fn(CurrencyInfo $currency): array => $currency->toArray(), $this->values());
+        if ($this->cachedExportArray !== null) {
+            return $this->cachedExportArray;
+        }
+
+        $result = [];
+        foreach ($this->values() as $currency) {
+            $result[] = $currency->toArray();
+        }
+
+        return $this->cachedExportArray = $result;
     }
 
     public function toJson(int $flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE): string

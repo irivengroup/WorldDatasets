@@ -6,15 +6,28 @@ namespace Iriven\Infrastructure\Persistence;
 
 use Iriven\Contract\CountryRepositoryInterface;
 use Iriven\Country;
+use Iriven\CountryCodeNormalizer;
 use Iriven\Exception\RepositoryException;
 use Iriven\Infrastructure\Cache\CacheInterface;
-use Iriven\CountryCodeNormalizer;
 use PDO;
 use PDOException;
 use Psr\Log\LoggerInterface;
 
 final class SqliteCountryRepository implements CountryRepositoryInterface
 {
+    /** @var array<string,Country> */
+    private array $byAlpha2 = [];
+
+    /** @var array<string,Country> */
+    private array $byAlpha3 = [];
+
+    /** @var array<string,Country> */
+    private array $byNumeric = [];
+
+    private bool $indexesLoaded = false;
+
+    private ?CountryCodeNormalizer $resolvedNormalizer = null;
+
     public function __construct(
         private readonly PDO $pdo,
         private readonly ?CacheInterface $cache = null,
@@ -89,17 +102,26 @@ final class SqliteCountryRepository implements CountryRepositoryInterface
 
     public function findOneByAlpha2(string $alpha2): ?Country
     {
-        return $this->findOneByColumn('alpha2', $this->normalizer()->normalizeAlpha($alpha2));
+        $value = $this->normalizer()->normalizeAlpha($alpha2);
+        $this->ensureLookupIndexes();
+
+        return $this->byAlpha2[$value] ?? $this->findOneByColumn('alpha2', $value);
     }
 
     public function findOneByAlpha3(string $alpha3): ?Country
     {
-        return $this->findOneByColumn('alpha3', $this->normalizer()->normalizeAlpha($alpha3));
+        $value = $this->normalizer()->normalizeAlpha($alpha3);
+        $this->ensureLookupIndexes();
+
+        return $this->byAlpha3[$value] ?? $this->findOneByColumn('alpha3', $value);
     }
 
     public function findOneByNumeric(string $numeric): ?Country
     {
-        return $this->findOneByColumn('numeric_code', $this->normalizer()->normalizeNumeric($numeric));
+        $value = $this->normalizer()->normalizeNumeric($numeric);
+        $this->ensureLookupIndexes();
+
+        return $this->byNumeric[$value] ?? $this->findOneByColumn('numeric_code', $value);
     }
 
     public function findOneByName(string $name): ?Country
@@ -162,26 +184,82 @@ final class SqliteCountryRepository implements CountryRepositoryInterface
 
     public function findByCurrencyCode(string $currencyCode): array
     {
-        $value = strtoupper(trim($currencyCode));
-        return $this->fetchByExactColumn('currency_code', $value);
+        return $this->fetchByExactColumn('currency_code', strtoupper(trim($currencyCode)), true);
     }
 
     public function findByRegion(string $region): array
     {
-        $value = trim($region);
-        return $this->fetchByExactColumn('region_name', $value, false);
+        return $this->fetchByExactColumn('region_name', trim($region), false);
     }
 
     public function findByPhoneCode(string $phoneCode): array
     {
-        $value = trim($phoneCode);
-        return $this->fetchByExactColumn('phone_code', $value, false);
+        return $this->fetchByExactColumn('phone_code', trim($phoneCode), false);
     }
 
     public function findByTld(string $tld): array
     {
-        $value = $this->normalizer()->normalizeTld($tld);
-        return $this->fetchByExactColumn('tld', $value, false);
+        return $this->fetchByExactColumn('tld', $this->normalizer()->normalizeTld($tld), false);
+    }
+
+    /** @return iterable<Country> */
+    public function iterateAllLazy(int $limit = 500): iterable
+    {
+        $offset = 0;
+
+        do {
+            $batch = $this->fetchCountriesPrepared(
+                'SELECT
+                    alpha2, alpha3, numeric_code, country_name, capital, tld,
+                    region_alpha_code, region_num_code, region_name,
+                    sub_region_code, sub_region_name, language,
+                    currency_code, currency_name, postal_code_pattern,
+                    phone_code, intl_dialing_prefix, natl_dialing_prefix,
+                    subscriber_phone_pattern
+                 FROM countries
+                 ORDER BY country_name ASC
+                 LIMIT :limit OFFSET :offset',
+                [':limit' => $limit, ':offset' => $offset],
+                [':limit' => PDO::PARAM_INT, ':offset' => PDO::PARAM_INT]
+            );
+
+            foreach ($batch as $country) {
+                yield $country;
+            }
+
+            $offset += $limit;
+        } while ($batch !== []);
+    }
+
+    /** @return iterable<Country> */
+    public function iterateByRegionLazy(string $region, int $limit = 500): iterable
+    {
+        $offset = 0;
+        $region = trim($region);
+
+        do {
+            $batch = $this->fetchCountriesPrepared(
+                'SELECT
+                    alpha2, alpha3, numeric_code, country_name, capital, tld,
+                    region_alpha_code, region_num_code, region_name,
+                    sub_region_code, sub_region_name, language,
+                    currency_code, currency_name, postal_code_pattern,
+                    phone_code, intl_dialing_prefix, natl_dialing_prefix,
+                    subscriber_phone_pattern
+                 FROM countries
+                 WHERE region_name = :region
+                 ORDER BY country_name ASC
+                 LIMIT :limit OFFSET :offset',
+                [':region' => $region, ':limit' => $limit, ':offset' => $offset],
+                [':limit' => PDO::PARAM_INT, ':offset' => PDO::PARAM_INT]
+            );
+
+            foreach ($batch as $country) {
+                yield $country;
+            }
+
+            $offset += $limit;
+        } while ($batch !== []);
     }
 
     public function getAllCurrenciesCodeAndName(): array
@@ -250,6 +328,35 @@ final class SqliteCountryRepository implements CountryRepositoryInterface
                 'country_name'
             );
         });
+    }
+
+    private function ensureLookupIndexes(): void
+    {
+        if ($this->indexesLoaded) {
+            return;
+        }
+
+        try {
+            $stmt = $this->pdo->query('SELECT
+                alpha2, alpha3, numeric_code, country_name, capital, tld,
+                region_alpha_code, region_num_code, region_name,
+                sub_region_code, sub_region_name, language,
+                currency_code, currency_name, postal_code_pattern,
+                phone_code, intl_dialing_prefix, natl_dialing_prefix,
+                subscriber_phone_pattern
+             FROM countries');
+
+            foreach ($stmt->fetchAll() as $row) {
+                $country = Country::fromDatabaseRow($row);
+                $this->byAlpha2[$country->alpha2()] = $country;
+                $this->byAlpha3[$country->alpha3()] = $country;
+                $this->byNumeric[$country->numeric()] = $country;
+            }
+
+            $this->indexesLoaded = true;
+        } catch (PDOException $e) {
+            $this->logger?->error('Failed to build memory lookup indexes.', ['exception' => $e]);
+        }
     }
 
     private function fetchByExactColumn(string $column, string $value, bool $normalizeAlpha = true): array
@@ -334,7 +441,11 @@ final class SqliteCountryRepository implements CountryRepositoryInterface
         try {
             $stmt = $this->pdo->query($sql);
             $rows = $stmt->fetchAll();
-            return array_map(static fn(array $row): Country => Country::fromDatabaseRow($row), $rows);
+            $result = [];
+            foreach ($rows as $row) {
+                $result[] = Country::fromDatabaseRow($row);
+            }
+            return $result;
         } catch (PDOException $e) {
             $this->logger?->error('Failed to fetch countries.', ['exception' => $e, 'sql' => $sql]);
             throw new RepositoryException('Failed to fetch countries.', 0, $e);
@@ -342,17 +453,23 @@ final class SqliteCountryRepository implements CountryRepositoryInterface
     }
 
     /** @return list<Country> */
-    private function fetchCountriesPrepared(string $sql, array $params): array
+    private function fetchCountriesPrepared(string $sql, array $params, array $paramTypes = []): array
     {
         try {
             $stmt = $this->pdo->prepare($sql);
             foreach ($params as $key => $value) {
-                $stmt->bindValue((string) $key, $value);
+                $type = $paramTypes[$key] ?? PDO::PARAM_STR;
+                $stmt->bindValue((string) $key, $value, $type);
             }
             $stmt->execute();
             $rows = $stmt->fetchAll();
 
-            return array_map(static fn(array $row): Country => Country::fromDatabaseRow($row), $rows);
+            $result = [];
+            foreach ($rows as $row) {
+                $result[] = Country::fromDatabaseRow($row);
+            }
+
+            return $result;
         } catch (PDOException $e) {
             $this->logger?->error('Failed to fetch countries with prepared query.', [
                 'exception' => $e,
@@ -410,7 +527,7 @@ final class SqliteCountryRepository implements CountryRepositoryInterface
 
     private function normalizer(): CountryCodeNormalizer
     {
-        return $this->normalizer ?? new CountryCodeNormalizer();
+        return $this->resolvedNormalizer ??= ($this->normalizer ?? new CountryCodeNormalizer());
     }
 
     private function remember(string $cacheKey, callable $resolver): mixed

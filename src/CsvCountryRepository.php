@@ -28,16 +28,14 @@ final class CsvCountryRepository implements CountryRepositoryInterface
             throw new RuntimeException('Invalid CSV header.');
         }
 
-        $rows = [];
+        $countries = [];
         while (($row = fgetcsv($handle)) !== false) {
-            $rows[] = array_combine($headers, array_pad($row, count($headers), ''));
+            $assoc = array_combine($headers, array_pad($row, count($headers), ''));
+            if (is_array($assoc)) {
+                $countries[] = Country::fromDatabaseRow($assoc);
+            }
         }
         fclose($handle);
-
-        $countries = array_map(
-            static fn(array $row): Country => Country::fromDatabaseRow($row),
-            $rows
-        );
 
         $this->inner = new ArrayCountryRepository($countries);
     }

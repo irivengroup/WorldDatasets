@@ -8,6 +8,12 @@ use Iriven\Contract\Arrayable;
 
 final class Country implements Arrayable, \JsonSerializable
 {
+    private ?CurrencyInfo $currency = null;
+    private ?RegionInfo $regionObject = null;
+    private ?PhoneInfo $phoneObject = null;
+    private ?array $apiArray = null;
+    private ?array $indexedArray = null;
+
     public function __construct(
         private readonly string $alpha2,
         private readonly string $alpha3,
@@ -43,12 +49,12 @@ final class Country implements Arrayable, \JsonSerializable
 
     public function currency(): CurrencyInfo
     {
-        return new CurrencyInfo($this->currencyCode, $this->currencyName);
+        return $this->currency ??= new CurrencyInfo($this->currencyCode, $this->currencyName);
     }
 
     public function region(): RegionInfo
     {
-        return new RegionInfo(
+        return $this->regionObject ??= new RegionInfo(
             $this->regionAlphaCode,
             $this->regionNumCode,
             $this->region,
@@ -58,14 +64,18 @@ final class Country implements Arrayable, \JsonSerializable
 
     public function phone(): PhoneInfo
     {
+        if ($this->phoneObject !== null) {
+            return $this->phoneObject;
+        }
+
         $areaCode = $this->natlDialingPrefix;
         $subscriberPattern = $this->subscriberPhonePattern;
         $pattern = $areaCode !== ''
-            ? '(\\+' . preg_quote($this->phoneCode, '/') . '|' . $areaCode . ')'
-            : '(\\+' . preg_quote($this->phoneCode, '/') . ')?';
-        $pattern .= $subscriberPattern !== '' ? '(' . $subscriberPattern . ')' : '(\\d+)';
+            ? '(\+' . preg_quote($this->phoneCode, '/') . '|' . $areaCode . ')'
+            : '(\+' . preg_quote($this->phoneCode, '/') . ')?';
+        $pattern .= $subscriberPattern !== '' ? '(' . $subscriberPattern . ')' : '(\d+)';
 
-        return new PhoneInfo(
+        return $this->phoneObject = new PhoneInfo(
             $this->phoneCode,
             $this->intlDialingPrefix,
             $this->natlDialingPrefix,
@@ -96,44 +106,12 @@ final class Country implements Arrayable, \JsonSerializable
 
     public function toArray(): array
     {
-        return [
-            'alpha2' => $this->alpha2,
-            'alpha3' => $this->alpha3,
-            'numeric' => $this->numeric,
-            'country' => $this->country,
-            'capital' => $this->capital,
-            'tld' => $this->tld,
-            'language' => $this->language,
-            'postal_code_pattern' => $this->postalCodePattern,
-            'currency' => $this->currency()->toArray(),
-            'region' => $this->region()->toArray(),
-            'phone' => $this->phone()->toArray(),
-        ];
+        return $this->apiArray ??= (new CountryArrayTransformer())->toApiArray($this);
     }
 
     public function toIndexedArray(): array
     {
-        return [
-            $this->alpha2,
-            $this->alpha3,
-            $this->numeric,
-            $this->country,
-            $this->capital,
-            $this->tld,
-            $this->regionAlphaCode,
-            $this->regionNumCode,
-            $this->region,
-            $this->subRegionCode,
-            $this->subRegion,
-            $this->language,
-            $this->currencyCode,
-            $this->currencyName,
-            $this->postalCodePattern,
-            $this->phoneCode,
-            $this->intlDialingPrefix,
-            $this->natlDialingPrefix,
-            $this->subscriberPhonePattern,
-        ];
+        return $this->indexedArray ??= (new CountryArrayTransformer())->toStorageArray($this);
     }
 
     public function all(): array

@@ -10,6 +10,16 @@ use Iriven\Exporter\JsonExporter;
 
 final class CountriesCollection implements Arrayable, \JsonSerializable
 {
+    private ?array $cachedList = null;
+    private ?array $cachedExportArray = null;
+    private ?array $cachedStorageArray = null;
+    private ?array $cachedApiArray = null;
+    private ?array $cachedCodes = null;
+    private ?array $cachedNames = null;
+    private ?CountriesStats $cachedStats = null;
+    private ?array $cachedGroupByRegion = null;
+    private ?array $cachedGroupByCurrency = null;
+
     public function __construct(
         private readonly array $countries,
         private CountryCodeFormat $format = CountryCodeFormat::ALPHA2,
@@ -23,50 +33,92 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
     public function inRegion(string $name): self
     {
         $needle = mb_strtolower(trim($name));
-        return new self(array_values(array_filter($this->countries, static fn(Country $country): bool => mb_strtolower($country->region()->name()) === $needle)), $this->format);
+        $result = [];
+        foreach ($this->countries as $country) {
+            if (mb_strtolower($country->region()->name()) === $needle) {
+                $result[] = $country;
+            }
+        }
+        return new self($result, $this->format);
     }
 
     public function inSubRegion(string $name): self
     {
         $needle = mb_strtolower(trim($name));
-        return new self(array_values(array_filter($this->countries, static fn(Country $country): bool => mb_strtolower($country->region()->subRegion()->name()) === $needle)), $this->format);
+        $result = [];
+        foreach ($this->countries as $country) {
+            if (mb_strtolower($country->region()->subRegion()->name()) === $needle) {
+                $result[] = $country;
+            }
+        }
+        return new self($result, $this->format);
     }
 
     public function withCurrency(string $code): self
     {
         $needle = strtoupper(trim($code));
-        return new self(array_values(array_filter($this->countries, static fn(Country $country): bool => strtoupper($country->currency()->code()) === $needle)), $this->format);
+        $result = [];
+        foreach ($this->countries as $country) {
+            if (strtoupper($country->currency()->code()) === $needle) {
+                $result[] = $country;
+            }
+        }
+        return new self($result, $this->format);
     }
 
     public function withPhoneCode(string $code): self
     {
         $normalizer = new PhoneCodeNormalizer();
         $needle = $normalizer->normalize($code);
-        return new self(array_values(array_filter($this->countries, static fn(Country $country): bool => (new PhoneCodeNormalizer())->normalize($country->phone()->code()) === $needle)), $this->format);
+        $result = [];
+        foreach ($this->countries as $country) {
+            if ($normalizer->normalize($country->phone()->code()) === $needle) {
+                $result[] = $country;
+            }
+        }
+        return new self($result, $this->format);
     }
 
     public function withTld(string $tld): self
     {
         $normalizer = new TldNormalizer();
         $needle = $normalizer->normalize($tld);
-        return new self(array_values(array_filter($this->countries, static fn(Country $country): bool => (new TldNormalizer())->normalize($country->tld()) === $needle)), $this->format);
+        $result = [];
+        foreach ($this->countries as $country) {
+            if ($normalizer->normalize($country->tld()) === $needle) {
+                $result[] = $country;
+            }
+        }
+        return new self($result, $this->format);
     }
 
     public function named(string $name): self
     {
         $needle = mb_strtolower(trim($name));
-        return new self(array_values(array_filter($this->countries, static fn(Country $country): bool => mb_strtolower($country->name()) === $needle)), $this->format);
+        $result = [];
+        foreach ($this->countries as $country) {
+            if (mb_strtolower($country->name()) === $needle) {
+                $result[] = $country;
+            }
+        }
+        return new self($result, $this->format);
     }
 
     public function matching(string $term): self
     {
         $needle = mb_strtolower(trim($term));
-        return new self(array_values(array_filter($this->countries, static fn(Country $country): bool =>
-            str_contains(mb_strtolower($country->name()), $needle)
-            || str_contains(mb_strtolower($country->alpha2()), $needle)
-            || str_contains(mb_strtolower($country->alpha3()), $needle)
-            || str_contains(mb_strtolower($country->numeric()), $needle)
-        )), $this->format);
+        $result = [];
+        foreach ($this->countries as $country) {
+            if (
+                str_contains(mb_strtolower($country->name()), $needle)
+                || str_contains(mb_strtolower($country->alpha2()), $needle)
+                || str_contains(mb_strtolower($country->alpha3()), $needle)
+                || str_contains(mb_strtolower($country->numeric()), $needle)
+            ) {
+                $result[] = $country;
+            }
+        }
+        return new self($result, $this->format);
     }
 
     public function sortByName(): self
@@ -111,15 +163,21 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
     public function first(): ?Country { return $this->countries[0] ?? null; }
     public function last(): ?Country { return $this->countries === [] ? null : $this->countries[array_key_last($this->countries)]; }
     public function values(): array { return $this->countries; }
-    public function names(): array { return $this->list(); }
-    public function codes(): array { return array_keys($this->list()); }
+    public function names(): array { return $this->cachedNames ??= $this->list(); }
+    public function codes(): array { return $this->cachedCodes ??= array_keys($this->list()); }
     public function count(): int { return count($this->countries); }
     public function isEmpty(): bool { return $this->countries === []; }
     public function isNotEmpty(): bool { return !$this->isEmpty(); }
 
     public function contains(string $code): bool
     {
-        return (new WorldDatasets(new ArrayCountryRepository($this->countries)))->findCountry($code) !== null;
+        $code = trim($code);
+        foreach ($this->countries as $country) {
+            if ($country->alpha2() === strtoupper($code) || $country->alpha3() === strtoupper($code) || $country->numeric() === $code) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function containsCountry(callable|Country|string $value): bool
@@ -151,6 +209,10 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
 
     public function stats(): CountriesStats
     {
+        if ($this->cachedStats !== null) {
+            return $this->cachedStats;
+        }
+
         $regions = [];
         $currencies = [];
         foreach ($this->countries as $country) {
@@ -162,27 +224,37 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
             }
         }
 
-        return new CountriesStats(count($this->countries), count($regions), count($currencies));
+        return $this->cachedStats = new CountriesStats(count($this->countries), count($regions), count($currencies));
     }
 
     public function groupByRegion(): array
     {
+        if ($this->cachedGroupByRegion !== null) {
+            return $this->cachedGroupByRegion;
+        }
+
         $result = [];
         foreach ($this->countries as $country) {
             $result[$country->region()->name()][$country->alpha2()] = $country->name();
         }
         ksort($result);
-        return $result;
+
+        return $this->cachedGroupByRegion = $result;
     }
 
     public function groupByCurrency(): array
     {
+        if ($this->cachedGroupByCurrency !== null) {
+            return $this->cachedGroupByCurrency;
+        }
+
         $result = [];
         foreach ($this->countries as $country) {
             $result[$country->currency()->code()][$country->alpha2()] = $country->name();
         }
         ksort($result);
-        return $result;
+
+        return $this->cachedGroupByCurrency = $result;
     }
 
     public function pluckNames(): array
@@ -218,6 +290,10 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
 
     public function list(): array
     {
+        if ($this->cachedList !== null) {
+            return $this->cachedList;
+        }
+
         $result = [];
         foreach ($this->countries as $country) {
             $key = match ($this->format) {
@@ -228,12 +304,23 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
             $result[$key] = $country->name();
         }
         asort($result);
-        return $result;
+
+        return $this->cachedList = $result;
     }
 
     public function exportArray(): array
     {
-        return array_map(static fn(Country $country): array => $country->toArray(), $this->countries);
+        if ($this->cachedExportArray !== null) {
+            return $this->cachedExportArray;
+        }
+
+        $transformer = new CountryArrayTransformer();
+        $result = [];
+        foreach ($this->countries as $country) {
+            $result[] = $transformer->toApiArray($country);
+        }
+
+        return $this->cachedExportArray = $result;
     }
 
     public function toJson(int $flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE): string
@@ -258,12 +345,22 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
 
     public function toStorageArray(): array
     {
-        return array_map(static fn(Country $country): array => $country->toIndexedArray(), $this->countries);
+        if ($this->cachedStorageArray !== null) {
+            return $this->cachedStorageArray;
+        }
+
+        $transformer = new CountryArrayTransformer();
+        $result = [];
+        foreach ($this->countries as $country) {
+            $result[] = $transformer->toStorageArray($country);
+        }
+
+        return $this->cachedStorageArray = $result;
     }
 
     public function toApiArray(): array
     {
-        return $this->exportArray();
+        return $this->cachedApiArray ??= $this->exportArray();
     }
 
     public function toArray(): array { return $this->exportArray(); }

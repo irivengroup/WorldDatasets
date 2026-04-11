@@ -17,15 +17,19 @@ final class JsonCountryRepository implements CountryRepositoryInterface
             throw new RuntimeException(sprintf('JSON file not found: %s', $filePath));
         }
 
-        $decoded = json_decode((string) file_get_contents($filePath), true);
+        $content = file_get_contents($filePath);
+        $decoded = json_decode((string) $content, true);
+
         if (!is_array($decoded)) {
             throw new RuntimeException('Invalid JSON dataset.');
         }
 
-        $countries = array_map(
-            static fn(array $row): Country => Country::fromDatabaseRow($row),
-            $decoded
-        );
+        $countries = [];
+        foreach ($decoded as $row) {
+            if (is_array($row)) {
+                $countries[] = Country::fromDatabaseRow($row);
+            }
+        }
 
         $this->inner = new ArrayCountryRepository($countries);
     }

@@ -8,12 +8,34 @@ use Iriven\Contract\CountryRepositoryInterface;
 
 final class ArrayCountryRepository implements CountryRepositoryInterface
 {
+    /** @var list<Country> */
+    private array $countries;
+
+    /** @var array<string,Country> */
+    private array $byAlpha2 = [];
+
+    /** @var array<string,Country> */
+    private array $byAlpha3 = [];
+
+    /** @var array<string,Country> */
+    private array $byNumeric = [];
+
+    /** @var array<string,Country> */
+    private array $byName = [];
+
     /**
      * @param list<Country> $countries
      */
-    public function __construct(
-        private readonly array $countries,
-    ) {
+    public function __construct(array $countries)
+    {
+        $this->countries = array_values($countries);
+
+        foreach ($this->countries as $country) {
+            $this->byAlpha2[$country->alpha2()] = $country;
+            $this->byAlpha3[$country->alpha3()] = $country;
+            $this->byNumeric[$country->numeric()] = $country;
+            $this->byName[mb_strtolower($country->name())] = $country;
+        }
     }
 
     public function count(): int
@@ -28,116 +50,107 @@ final class ArrayCountryRepository implements CountryRepositoryInterface
 
     public function findOneByAlpha2(string $alpha2): ?Country
     {
-        $needle = strtoupper(trim($alpha2));
-        foreach ($this->countries as $country) {
-            if ($country->alpha2() === $needle) {
-                return $country;
-            }
-        }
-
-        return null;
+        return $this->byAlpha2[strtoupper(trim($alpha2))] ?? null;
     }
 
     public function findOneByAlpha3(string $alpha3): ?Country
     {
-        $needle = strtoupper(trim($alpha3));
-        foreach ($this->countries as $country) {
-            if ($country->alpha3() === $needle) {
-                return $country;
-            }
-        }
-
-        return null;
+        return $this->byAlpha3[strtoupper(trim($alpha3))] ?? null;
     }
 
     public function findOneByNumeric(string $numeric): ?Country
     {
-        $needle = trim($numeric);
-        foreach ($this->countries as $country) {
-            if ($country->numeric() === $needle) {
-                return $country;
-            }
-        }
-
-        return null;
+        return $this->byNumeric[trim($numeric)] ?? null;
     }
 
     public function findOneByName(string $name): ?Country
     {
-        $needle = mb_strtolower(trim($name));
-        foreach ($this->countries as $country) {
-            if (mb_strtolower($country->name()) === $needle) {
-                return $country;
-            }
-        }
-
-        return null;
+        return $this->byName[mb_strtolower(trim($name))] ?? null;
     }
 
     public function findByName(string $name): array
     {
-        $needle = mb_strtolower(trim($name));
-
-        return array_values(array_filter(
-            $this->countries,
-            static fn(Country $country): bool => mb_strtolower($country->name()) === $needle
-        ));
+        $country = $this->findOneByName($name);
+        return $country === null ? [] : [$country];
     }
 
     public function search(string $term): array
     {
         $needle = mb_strtolower(trim($term));
+        $result = [];
 
-        return array_values(array_filter(
-            $this->countries,
-            static fn(Country $country): bool =>
+        foreach ($this->countries as $country) {
+            if (
                 str_contains(mb_strtolower($country->name()), $needle)
                 || str_contains(mb_strtolower($country->alpha2()), $needle)
                 || str_contains(mb_strtolower($country->alpha3()), $needle)
                 || str_contains(mb_strtolower($country->numeric()), $needle)
                 || str_contains(mb_strtolower($country->currency()->code()), $needle)
                 || str_contains(mb_strtolower($country->currency()->name()), $needle)
-        ));
+            ) {
+                $result[] = $country;
+            }
+        }
+
+        return $result;
     }
 
     public function findByCurrencyCode(string $currencyCode): array
     {
         $needle = strtoupper(trim($currencyCode));
+        $result = [];
 
-        return array_values(array_filter(
-            $this->countries,
-            static fn(Country $country): bool => strtoupper($country->currency()->code()) === $needle
-        ));
+        foreach ($this->countries as $country) {
+            if (strtoupper($country->currency()->code()) === $needle) {
+                $result[] = $country;
+            }
+        }
+
+        return $result;
     }
 
     public function findByRegion(string $region): array
     {
         $needle = mb_strtolower(trim($region));
+        $result = [];
 
-        return array_values(array_filter(
-            $this->countries,
-            static fn(Country $country): bool => mb_strtolower($country->region()->name()) === $needle
-        ));
+        foreach ($this->countries as $country) {
+            if (mb_strtolower($country->region()->name()) === $needle) {
+                $result[] = $country;
+            }
+        }
+
+        return $result;
     }
 
     public function findByPhoneCode(string $phoneCode): array
     {
-        $needle = (new PhoneCodeNormalizer())->normalize($phoneCode);
+        $normalizer = new PhoneCodeNormalizer();
+        $needle = $normalizer->normalize($phoneCode);
+        $result = [];
 
-        return array_values(array_filter(
-            $this->countries,
-            static fn(Country $country): bool => (new PhoneCodeNormalizer())->normalize($country->phone()->code()) === $needle
-        ));
+        foreach ($this->countries as $country) {
+            if ($normalizer->normalize($country->phone()->code()) === $needle) {
+                $result[] = $country;
+            }
+        }
+
+        return $result;
     }
 
     public function findByTld(string $tld): array
     {
-        $needle = (new TldNormalizer())->normalize($tld);
+        $normalizer = new TldNormalizer();
+        $needle = $normalizer->normalize($tld);
+        $result = [];
 
-        return array_values(array_filter(
-            $this->countries,
-            static fn(Country $country): bool => (new TldNormalizer())->normalize($country->tld()) === $needle
-        ));
+        foreach ($this->countries as $country) {
+            if ($normalizer->normalize($country->tld()) === $needle) {
+                $result[] = $country;
+            }
+        }
+
+        return $result;
     }
 
     public function getAllCurrenciesCodeAndName(): array
