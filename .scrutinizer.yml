@@ -27,6 +27,17 @@ build:
       - command: "composer run check-data"
       - command: "composer run doctor"
       - command: "composer run analyse"
+      - command: "XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover build/logs/clover.xml"
+        idle_timeout: 1200
       - command: "composer test"
       # - command: "git diff --exit-code"
       #   idle_timeout: 600
+  nodes:
+    analysis:
+      tests:
+        override:
+          - php-scrutinizer-run
+
+  coverage:
+    file: "build/logs/clover.xml"
+    format: "clover"
