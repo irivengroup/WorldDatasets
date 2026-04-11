@@ -1,64 +1,5 @@
-# Convention retenue
 
-Cette version conserve volontairement :
-
-- `WorldDatasetsService` comme service principal
-- `WorldDatasetsFactory` comme factory principale
-- `countries()` comme point d’entrée de collection
-- `CountriesCollection` comme nom officiel de la collection de pays
-- la variable d’exemple `$worldDatasets` dans toute la documentation
-
-Autrement dit :
-- on **ne migre pas** `CountriesCollection` vers `DatasetsCollection`
-- on garde `countries()` → `CountriesCollection`
-
----
-
-# Version publique stabilisée v1
-
-Cette archive ne contient plus d’alias de transition.  
-L’API publique officielle repose uniquement sur :
-
-- `Iriven\WorldDatasets\WorldDatasetsService`
-- `Iriven\WorldDatasets\WorldDatasetsFactory`
-- `Iriven\WorldDatasets\WorldDatasetsRuntimeConfig`
-- `Iriven\WorldDatasets\CountriesCollection`
-- `Iriven\WorldDatasets\CurrencyCollection`
-- `Iriven\WorldDatasets\RegionCollection`
-- `Iriven\WorldDatasets\WorldDatasetsQuery`
-- `Iriven\WorldDatasets\WorldDatasetsStats`
-
----
-
-# Public API harmonisée
-
-Le package est maintenant aligné de bout en bout :
-
-- package Composer : `iriven/php-world-datasets`
-- namespace principal : `Iriven\WorldDatasets\`
-- service principal : `WorldDatasetsService`
-- factory principale : `WorldDatasetsFactory`
-- collection principale : `CountriesCollection`
-- query builder : `WorldDatasetsQuery`
-
----
-
-# Installation
-
-```bash
-composer require iriven/php-world-datasets
-```
-
-Namespace principal :
-
-```php
-use Iriven\WorldDatasets\WorldDatasetsService;
-use Iriven\WorldDatasets\WorldDatasetsFactory;
-```
-
----
-
-# PHP Countries Data
+# PHP World Datasets
 
 Bibliothèque PHP orientée entreprise pour consulter, filtrer, exporter et valider des données pays avec source principale SQLite, sources dérivées JSON/CSV, collections fluentes, value objects, pipeline de build et intégrations Symfony/Laravel.
 
@@ -88,7 +29,7 @@ Bibliothèque PHP orientée entreprise pour consulter, filtrer, exporter et vali
 
 Le projet expose une API moderne autour de quatre idées :
 - un service principal de consultation
-- des `Country` value objects
+- des value objects
 - des collections immutables et chaînables
 - plusieurs formats de stockage, avec SQLite comme défaut
 
@@ -97,9 +38,6 @@ Le nom principal de la classe de service est désormais :
 ```php
 Iriven\WorldDatasets
 ```
-
-L’alias de compatibilité historique `WorldDatasets` est conservé, mais déprécié.
-
 ---
 
 # 2. Architecture
@@ -197,7 +135,7 @@ composer test
 ```php
 use Iriven\WorldDatasets\WorldDatasetsFactory;
 
-$worldDatasets = WorldDatasetsFactory::make();
+$worldDatasets = WorldDatasetsFactory::make(); //SQLite
 
 echo $worldDatasets->country('FR')->name();
 echo $worldDatasets->country('250')->tld();
@@ -945,7 +883,7 @@ $worldDatasets->meta();
 
 ---
 
-## 2. Chainages possibles depuis `Country`
+## 2. Chainages depuis `Country`
 
 ## 2.1 Accès direct aux propriétés scalaires
 
@@ -984,17 +922,12 @@ $worldDatasets->country('FR')->isInRegion('Europe');
 
 ---
 
-## 3. Chainages possibles depuis `CurrencyInfo`
+## 3. Chainages depuis `CurrencyInfo`
 
 Point d’entrée :
 
 ```php
 $currency = $worldDatasets->country('FR')->currency();
-```
-
-### Méthodes publiques
-
-```php
 $currency->code();
 $currency->name();
 $currency->toArray();
@@ -1002,27 +935,23 @@ $currency->jsonSerialize();
 (string) $currency;
 ```
 
-### Exemples
+### Chainages complets
 
 ```php
 $worldDatasets->country('FR')->currency()->code();
 $worldDatasets->country('FR')->currency()->name();
 $worldDatasets->country('FR')->currency()->toArray();
+$worldDatasets->country('FR')->currency()->jsonSerialize();
 ```
 
 ---
 
-## 4. Chainages possibles depuis `RegionInfo`
+## 4. Chainages depuis `RegionInfo`
 
 Point d’entrée :
 
 ```php
 $region = $worldDatasets->country('FR')->region();
-```
-
-### Méthodes publiques
-
-```php
 $region->alphaCode();
 $region->numericCode();
 $region->name();
@@ -1062,11 +991,6 @@ Point d’entrée :
 
 ```php
 $subRegion = $worldDatasets->country('FR')->region()->subRegion();
-```
-
-### Méthodes publiques
-
-```php
 $subRegion->code();
 $subRegion->code();
 $subRegion->name();
@@ -1084,11 +1008,6 @@ Point d’entrée :
 
 ```php
 $phone = $worldDatasets->country('FR')->phone();
-```
-
-### Méthodes publiques
-
-```php
 $phone->code();
 $phone->internationalPrefix();
 $phone->nationalPrefix();
@@ -1099,7 +1018,7 @@ $phone->jsonSerialize();
 (string) $phone;
 ```
 
-### Exemples détaillés
+### Chainages complets
 
 ```php
 $worldDatasets->country('FR')->phone()->code();
@@ -1112,7 +1031,7 @@ $worldDatasets->country('FR')->phone()->toArray();
 
 ---
 
-## 7. Chainages possibles depuis `CountriesCollection`
+## 7. Chainages depuis `CountriesCollection`
 
 Point d’entrée :
 
@@ -1301,11 +1220,6 @@ Point d’entrée :
 
 ```php
 $currencies = $worldDatasets->currencies();
-```
-
-### Méthodes publiques
-
-```php
 $currencies->values();
 $currencies->list();
 $currencies->countries();
@@ -1318,7 +1232,8 @@ $currencies->toArray();
 $currencies->jsonSerialize();
 ```
 
-### Exemples
+
+### Chainages complets
 
 ```php
 $worldDatasets->currencies()->list();
@@ -1336,11 +1251,6 @@ Point d’entrée :
 
 ```php
 $regions = $worldDatasets->regions();
-```
-
-### Méthodes publiques
-
-```php
 $regions->values();
 $regions->list();
 $regions->countries();
@@ -1353,7 +1263,7 @@ $regions->toArray();
 $regions->jsonSerialize();
 ```
 
-### Exemples
+### Chainages complets
 
 ```php
 $worldDatasets->regions()->list();
@@ -1432,11 +1342,6 @@ Point d’entrée :
 
 ```php
 $meta = $worldDatasets->meta();
-```
-
-### Méthodes publiques
-
-```php
 $meta->count();
 $meta->source();
 $meta->version();
@@ -1449,7 +1354,8 @@ $meta->toArray();
 $meta->jsonSerialize();
 ```
 
-### Exemples
+
+### Chainage Direct
 
 ```php
 $worldDatasets->meta()->source();
