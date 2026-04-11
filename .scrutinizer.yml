@@ -13,31 +13,29 @@ build:
   environment:
     php:
       version: "8.2"
+
   cache:
     directories:
-      - vendor/
+      - "vendor/"
+
   dependencies:
     before:
       - composer self-update || true
     override:
       - composer install --no-interaction --prefer-dist --optimize-autoloader
+
   tests:
     override:
       - command: "composer run build-data"
       - command: "composer run check-data"
       - command: "composer run doctor"
       - command: "composer run analyse"
+      - command: "mkdir -p build/logs"
       - command: "XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover build/logs/clover.xml"
         idle_timeout: 1200
       - command: "composer test"
       # - command: "git diff --exit-code"
       #   idle_timeout: 600
-  nodes:
-    analysis:
-      tests:
-        override:
-          - php-scrutinizer-run
 
-  coverage:
-    file: "build/logs/clover.xml"
-    format: "clover"
+build_failure_conditions:
+  - 'project.metric_change("scrutinizer.test_coverage", < 0)'
