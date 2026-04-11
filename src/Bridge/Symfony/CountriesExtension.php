@@ -8,8 +8,8 @@ use Iriven\CountriesServiceFactory;
 
 final class CountriesExtension
 {
-    public static function create(string $sqlitePath): \Iriven\Countries
+    public static function create(?string $path = null): \Iriven\Countries
     {
-        return CountriesServiceFactory::make($sqlitePath);
+        return CountriesServiceFactory::make($path);
     }
 }

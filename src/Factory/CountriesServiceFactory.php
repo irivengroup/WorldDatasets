@@ -4,29 +4,28 @@ declare(strict_types=1);
 
 namespace Iriven\Factory;
 
-use Iriven\Infrastructure\Cache\ArrayCache;
-use Iriven\Infrastructure\Cache\CacheInterface;
-use Iriven\Infrastructure\Persistence\SqliteCountryRepository;
-use Iriven\Support\CountryCodeNormalizer;
-use Iriven\Support\NullLogger;
-use Iriven\WorldCountriesDatas;
-use Psr\Log\LoggerInterface;
+use Iriven\Countries;
+use Iriven\CountriesServiceFactory as BaseCountriesServiceFactory;
 
 final class CountriesServiceFactory
 {
-    public static function createFromSqlite(
-        string $sqliteFilePath,
-        ?CacheInterface $cache = null,
-        ?LoggerInterface $logger = null,
-        ?CountryCodeNormalizer $normalizer = null,
-    ): WorldCountriesDatas {
-        $repository = SqliteCountryRepository::fromSqliteFile(
-            $sqliteFilePath,
-            $cache ?? new ArrayCache(),
-            $logger ?? new NullLogger(),
-            $normalizer ?? new CountryCodeNormalizer(),
-        );
+    public static function create(?string $path = null): Countries
+    {
+        return BaseCountriesServiceFactory::make($path);
+    }
 
-        return new WorldCountriesDatas($repository);
+    public static function createFromJson(?string $path = null): Countries
+    {
+        return BaseCountriesServiceFactory::make($path);
+    }
+
+    public static function createFromCsv(string $path): Countries
+    {
+        return BaseCountriesServiceFactory::make($path);
+    }
+
+    public static function createFromSqlite(?string $path = null): Countries
+    {
+        return BaseCountriesServiceFactory::make($path);
     }
 }

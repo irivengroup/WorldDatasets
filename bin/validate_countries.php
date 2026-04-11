@@ -7,7 +7,7 @@ use Iriven\DatasetValidator;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$service = CountriesServiceFactory::make(__DIR__ . '/../src/data/countries.sqlite');
+$service = CountriesServiceFactory::make();
 $validator = new DatasetValidator();
 
 $strict = ($argv[1] ?? '--strict') === '--strict';

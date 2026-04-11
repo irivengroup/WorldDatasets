@@ -11,6 +11,7 @@ use Iriven\Contract\CountriesDataInterface;
 use Iriven\Contract\CountryRepositoryInterface;
 use Iriven\Exception\CountryNotFoundException;
 use Iriven\Exception\InvalidCountryCodeException;
+use Iriven\Exception\InvalidFormatException;
 use IteratorAggregate;
 use Traversable;
 
@@ -25,6 +26,8 @@ class WorldCountriesDatas implements CountriesDataInterface, Countable, Iterator
         private readonly CountryCodeNormalizer $countryCodeNormalizer = new CountryCodeNormalizer(),
         private readonly PhoneCodeNormalizer $phoneCodeNormalizer = new PhoneCodeNormalizer(),
         private readonly TldNormalizer $tldNormalizer = new TldNormalizer(),
+        private readonly string $datasetSource = 'json',
+        private readonly string $datasetVersion = '1.2.0',
     ) {
     }
 
@@ -111,40 +114,45 @@ class WorldCountriesDatas implements CountriesDataInterface, Countable, Iterator
     {
         return new MetaInfo(
             count: $this->count(),
-            source: 'sqlite',
-            version: '1.0.0',
+            source: $this->datasetSource,
+            version: $this->datasetVersion,
             lastUpdatedAt: null,
         );
     }
 
+    public function query(): CountriesQuery
+    {
+        return new CountriesQuery($this->countries());
+    }
+
     public function findByName(string $name): array
     {
-        return $this->countries()->named($name)->values();
+        return $this->repository->findByName($name);
     }
 
     public function searchCountries(string $term): array
     {
-        return $this->countries()->matching($term)->values();
+        return $this->repository->search($term);
     }
 
     public function findByCurrencyCode(string $currencyCode): array
     {
-        return $this->countries()->withCurrency($currencyCode)->values();
+        return $this->repository->findByCurrencyCode($currencyCode);
     }
 
     public function findByRegion(string $region): array
     {
-        return $this->countries()->inRegion($region)->values();
+        return $this->repository->findByRegion($region);
     }
 
     public function findByPhoneCode(string $phoneCode): array
     {
-        return $this->countries()->withPhoneCode($phoneCode)->values();
+        return $this->repository->findByPhoneCode($phoneCode);
     }
 
     public function findByTld(string $tld): array
     {
-        return $this->countries()->withTld($tld)->values();
+        return $this->repository->findByTld($tld);
     }
 
     private function resolveCountry(string $code): Country
@@ -185,7 +193,7 @@ class WorldCountriesDatas implements CountriesDataInterface, Countable, Iterator
                 self::ALPHA2 => CountryCodeFormat::ALPHA2,
                 self::ALPHA3 => CountryCodeFormat::ALPHA3,
                 self::NUMERIC => CountryCodeFormat::NUMERIC,
-                default => throw new InvalidArgumentException(sprintf('Unsupported format: %s', (string) $format)),
+                default => throw new InvalidFormatException(sprintf('Unsupported format: %s', (string) $format)),
             };
         }
 

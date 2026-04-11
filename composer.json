@@ -32,6 +32,7 @@
     "validate-data": "php bin/validate_countries.php",
     "analyse": "phpstan analyse",
     "test": "phpunit",
-    "countries": "php bin/countries"
+    "countries": "php bin/countries",
+    "import": "php bin/import_countries.php"
   }
 }

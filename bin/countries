@@ -4,10 +4,11 @@
 declare(strict_types=1);
 
 use Iriven\CountriesServiceFactory;
+use Iriven\DatasetValidator;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$service = CountriesServiceFactory::make(__DIR__ . '/../src/data/countries.sqlite');
+$service = CountriesServiceFactory::make();
 
 $args = $argv;
 array_shift($args);
@@ -53,7 +54,7 @@ switch ($command) {
 
     case 'validate':
         $strict = ($args[1] ?? '--strict') === '--strict';
-        $validator = new \Iriven\DatasetValidator();
+        $validator = new DatasetValidator();
         $report = $validator->validate($service->countries()->values(), $strict);
         print json_encode($report->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . PHP_EOL;
         break;

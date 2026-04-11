@@ -13,7 +13,7 @@ final class CountriesServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(Countries::class, function () {
-            $path = base_path('vendor/iriven/php-countries-data/src/data/countries.sqlite');
+            $path = base_path('vendor/iriven/php-countries-data/src/data/.countriesRepository.sqlite');
             return CountriesServiceFactory::make($path);
         });
     }

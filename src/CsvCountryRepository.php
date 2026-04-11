@@ -7,24 +7,36 @@ namespace Iriven;
 use Iriven\Contract\CountryRepositoryInterface;
 use RuntimeException;
 
-final class JsonCountryRepository implements CountryRepositoryInterface
+final class CsvCountryRepository implements CountryRepositoryInterface
 {
     private ArrayCountryRepository $inner;
 
     public function __construct(string $filePath)
     {
         if (!is_file($filePath)) {
-            throw new RuntimeException(sprintf('JSON file not found: %s', $filePath));
+            throw new RuntimeException(sprintf('CSV file not found: %s', $filePath));
         }
 
-        $decoded = json_decode((string) file_get_contents($filePath), true);
-        if (!is_array($decoded)) {
-            throw new RuntimeException('Invalid JSON dataset.');
+        $handle = fopen($filePath, 'rb');
+        if ($handle === false) {
+            throw new RuntimeException(sprintf('Unable to open CSV file: %s', $filePath));
         }
+
+        $headers = fgetcsv($handle);
+        if (!is_array($headers)) {
+            fclose($handle);
+            throw new RuntimeException('Invalid CSV header.');
+        }
+
+        $rows = [];
+        while (($row = fgetcsv($handle)) !== false) {
+            $rows[] = array_combine($headers, array_pad($row, count($headers), ''));
+        }
+        fclose($handle);
 
         $countries = array_map(
             static fn(array $row): Country => Country::fromDatabaseRow($row),
-            $decoded
+            $rows
         );
 
         $this->inner = new ArrayCountryRepository($countries);

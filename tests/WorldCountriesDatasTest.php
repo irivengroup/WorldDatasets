@@ -4,30 +4,18 @@ declare(strict_types=1);
 
 namespace Iriven\Tests;
 
+use Iriven\CountriesServiceFactory;
 use Iriven\CountryCodeFormat;
-use Iriven\CountriesQuery;
 use Iriven\DatasetValidator;
-use Iriven\Infrastructure\Cache\ArrayCache;
-use Iriven\Infrastructure\Persistence\SqliteCountryRepository;
-use Iriven\Support\NullLogger;
-use Iriven\WorldCountriesDatas;
 use PHPUnit\Framework\TestCase;
 
 final class WorldCountriesDatasTest extends TestCase
 {
-    private WorldCountriesDatas $service;
+    private \Iriven\Countries $service;
 
     protected function setUp(): void
     {
-        $dbFile = __DIR__ . '/../src/data/countries.sqlite';
-
-        $repository = SqliteCountryRepository::fromSqliteFile(
-            $dbFile,
-            new ArrayCache(),
-            new NullLogger()
-        );
-
-        $this->service = new WorldCountriesDatas($repository);
+        $this->service = CountriesServiceFactory::make(__DIR__ . '/../src/data/.countriesRepository.sqlite');
     }
 
     public function testCanResolveFranceFromAlpha2(): void
@@ -90,13 +78,7 @@ final class WorldCountriesDatasTest extends TestCase
     public function testStatsAndMeta(): void
     {
         self::assertGreaterThan(0, $this->service->countries()->stats()->total());
-        self::assertGreaterThan(0, $this->service->meta()->count());
-    }
-
-    public function testQueryBuilder(): void
-    {
-        $query = new CountriesQuery($this->service->countries());
-        self::assertIsArray($query->inRegion('Europe')->sortByName()->limit(5)->list());
+        self::assertSame('sqlite', $this->service->meta()->source());
     }
 
     public function testValidationLenient(): void

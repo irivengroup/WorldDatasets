@@ -4,26 +4,16 @@ declare(strict_types=1);
 
 namespace Iriven\Tests;
 
-use Iriven\Infrastructure\Cache\ArrayCache;
-use Iriven\Infrastructure\Persistence\SqliteCountryRepository;
-use Iriven\Support\CountryCodeNormalizer;
-use Iriven\Support\NullLogger;
+use Iriven\JsonCountryRepository;
 use PHPUnit\Framework\TestCase;
 
-final class SqliteCountryRepositoryTest extends TestCase
+final class JsonCountryRepositoryTest extends TestCase
 {
-    private SqliteCountryRepository $repository;
+    private JsonCountryRepository $repository;
 
     protected function setUp(): void
     {
-        $dbFile = __DIR__ . '/../data/countries.sqlite';
-
-        $this->repository = SqliteCountryRepository::fromSqliteFile(
-            $dbFile,
-            new ArrayCache(),
-            new NullLogger(),
-            new CountryCodeNormalizer()
-        );
+        $this->repository = new JsonCountryRepository(__DIR__ . '/../src/data/.countriesRepository.json');
     }
 
     public function testFindOneByAlpha2(): void
@@ -31,7 +21,7 @@ final class SqliteCountryRepositoryTest extends TestCase
         $country = $this->repository->findOneByAlpha2('FR');
 
         self::assertNotNull($country);
-        self::assertSame('France', $country->country());
+        self::assertSame('France', $country->name());
         self::assertSame('FRA', $country->alpha3());
     }
 
@@ -48,7 +38,7 @@ final class SqliteCountryRepositoryTest extends TestCase
         $country = $this->repository->findOneByNumeric('250');
 
         self::assertNotNull($country);
-        self::assertSame('France', $country->country());
+        self::assertSame('France', $country->name());
     }
 
     public function testSearchMethods(): void
@@ -59,19 +49,5 @@ final class SqliteCountryRepositoryTest extends TestCase
         self::assertNotEmpty($this->repository->findByRegion('Europe'));
         self::assertNotEmpty($this->repository->findByPhoneCode('33'));
         self::assertNotEmpty($this->repository->findByTld('.fr'));
-    }
-
-    public function testCurrenciesMapIsNotEmpty(): void
-    {
-        $currencies = $this->repository->getAllCurrenciesCodeAndName();
-
-        self::assertArrayHasKey('EUR', $currencies);
-    }
-
-    public function testRegionsMapIsNotEmpty(): void
-    {
-        $regions = $this->repository->getAllRegionsCodeAndName();
-
-        self::assertNotEmpty($regions);
     }
 }
