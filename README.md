@@ -1,4 +1,4 @@
-# PHP Countries Data
+# PHP World Countries Datasets
 
 Bibliothèque PHP orientée entreprise pour consulter, filtrer, exporter et valider des données pays avec source principale SQLite, sources dérivées JSON/CSV, collections fluentes, value objects, pipeline de build et intégrations Symfony/Laravel.
 
