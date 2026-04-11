@@ -1,5 +1,8 @@
 # Migration to v1
 
+> Ce document contient volontairement les anciens noms publics comme références historiques de migration.
+
+
 La v1 publique stabilise les noms suivants :
 
 | Ancien nom | Nouveau nom |

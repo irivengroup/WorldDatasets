@@ -3,12 +3,13 @@
 
 declare(strict_types=1);
 
-use Iriven\CountriesServiceFactory;
-use Iriven\DatasetValidator;
+use Iriven\WorldDatasets\WorldDatasetsFactory;
+use Iriven\WorldDatasets\DatasetValidator;
+use InvalidArgumentException;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$service = CountriesServiceFactory::make();
+$service = WorldDatasetsFactory::make();
 
 $args = $argv;
 array_shift($args);
@@ -60,11 +61,11 @@ switch ($command) {
         break;
 
     default:
-        echo "Usage:\n";
-        echo "  php bin/countries list [alpha2|alpha3|numeric]\n";
-        echo "  php bin/countries show FR\n";
-        echo "  php bin/countries search france\n";
-        echo "  php bin/countries export [countries|currencies|regions] [json|csv] [optional-output-file]\n";
-        echo "  php bin/countries validate [--strict|--lenient]\n";
+        echo "Usage:" . PHP_EOL;
+        echo "  php bin/countries list [alpha2|alpha3|numeric]" . PHP_EOL;
+        echo "  php bin/countries show FR" . PHP_EOL;
+        echo "  php bin/countries search france" . PHP_EOL;
+        echo "  php bin/countries export [countries|currencies|regions] [json|csv] [optional-output-file]" . PHP_EOL;
+        echo "  php bin/countries validate [--strict|--lenient]" . PHP_EOL;
         break;
 }

@@ -3,16 +3,16 @@
 
 declare(strict_types=1);
 
-use Iriven\CountriesServiceFactory;
+use Iriven\WorldDatasets\WorldDatasetsFactory;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $issues = [];
 
 foreach ([
-    CountriesServiceFactory::defaultSqlitePath(),
-    CountriesServiceFactory::defaultJsonPath(),
-    CountriesServiceFactory::defaultCsvPath(),
+    WorldDatasetsFactory::defaultSqlitePath(),
+    WorldDatasetsFactory::defaultJsonPath(),
+    WorldDatasetsFactory::defaultCsvPath(),
 ] as $path) {
     if (!is_file($path)) {
         $issues[] = 'Missing file: ' . $path;
@@ -20,7 +20,7 @@ foreach ([
 }
 
 try {
-    $service = CountriesServiceFactory::make();
+    $service = WorldDatasetsFactory::make();
     $service->country('FR');
     $service->country('US');
     $service->country('JP');
@@ -29,8 +29,7 @@ try {
 }
 
 if ($issues === []) {
-    echo "OK
-";
+    echo "OK" . PHP_EOL;
     exit(0);
 }
 

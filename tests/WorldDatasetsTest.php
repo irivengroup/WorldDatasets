@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 final class WorldDatasetsTest extends TestCase
 {
-    private \Iriven\Countries $service;
+    private \Iriven\WorldDatasets\WorldDatasetsService $service;
 
     protected function setUp(): void
     {
