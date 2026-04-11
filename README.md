@@ -3,6 +3,7 @@
 
 [![Build Status](https://scrutinizer-ci.com/g/irivengroup/WorldDatasets/badges/build.png?b=master)](https://scrutinizer-ci.com/g/irivengroup/WorldDatasets/build-status/master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/irivengroup/WorldDatasets/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/irivengroup/WorldDatasets/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/irivengroup/WorldDatasets/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/irivengroup/WorldDatasets/?branch=master)
 [![Code Intelligence Status](https://scrutinizer-ci.com/g/irivengroup/WorldDatasets/badges/code-intelligence.svg?b=master)](https://scrutinizer-ci.com/code-intelligence)
 [![GitHub license](https://img.shields.io/badge/license-AGPL-blue.svg)](https://github.com/irivengroup/WorldDatasets/blob/master/LICENSE)
 
