@@ -1,0 +1,32 @@
+checks:
+  php:
+    code_rating: true
+    duplication: true
+
+filter:
+  excluded_paths:
+    - "vendor/*"
+    - "docs/*"
+    - "src/Bridge/Laravel/*"
+
+build:
+  environment:
+    php:
+      version: "8.2"
+  cache:
+    directories:
+      - vendor/
+  dependencies:
+    before:
+      - composer self-update || true
+    override:
+      - composer install --no-interaction --prefer-dist --optimize-autoloader
+  tests:
+    override:
+      - command: "composer run build-data"
+      - command: "composer run check-data"
+      - command: "composer run doctor"
+      - command: "composer run analyse"
+      - command: "composer test"
+      # - command: "git diff --exit-code"
+      #   idle_timeout: 600
