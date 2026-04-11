@@ -21,7 +21,7 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
     private ?array $cachedGroupByCurrency = null;
 
     public function __construct(
-        private readonly array $worldDatasets,
+        private readonly array $countries,
         private CountryCodeFormat $format = CountryCodeFormat::ALPHA2,
     ) {
     }
@@ -123,16 +123,16 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
 
     public function sortByName(): self
     {
-        $worldDatasets = $this->countries;
-        usort($worldDatasets, static fn(Country $a, Country $b): int => strcmp($a->name(), $b->name()));
-        return new self($worldDatasets, $this->format);
+        $countries = $this->countries;
+        usort($countries, static fn(Country $a, Country $b): int => strcmp($a->name(), $b->name()));
+        return new self($countries, $this->format);
     }
 
     public function sortByCode(): self
     {
-        $worldDatasets = $this->countries;
+        $countries = $this->countries;
         $format = $this->format;
-        usort($worldDatasets, static function (Country $a, Country $b) use ($format): int {
+        usort($countries, static function (Country $a, Country $b) use ($format): int {
             $left = match ($format) {
                 CountryCodeFormat::ALPHA2 => $a->alpha2(),
                 CountryCodeFormat::ALPHA3 => $a->alpha3(),
@@ -145,14 +145,14 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
             };
             return strcmp($left, $right);
         });
-        return new self($worldDatasets, $this->format);
+        return new self($countries, $this->format);
     }
 
     public function sortByNumeric(): self
     {
-        $worldDatasets = $this->countries;
-        usort($worldDatasets, static fn(Country $a, Country $b): int => strcmp($a->numeric(), $b->numeric()));
-        return new self($worldDatasets, $this->format);
+        $countries = $this->countries;
+        usort($countries, static fn(Country $a, Country $b): int => strcmp($a->numeric(), $b->numeric()));
+        return new self($countries, $this->format);
     }
 
     public function paginate(int $offset, int $limit): self

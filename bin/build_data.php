@@ -64,8 +64,8 @@ if (is_file($sqliteFile)) {
     unlink($sqliteFile);
 }
 
-$pdo = new \PDO('sqlite:' . $sqliteFile);
-$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+$pdo = new PDO('sqlite:' . $sqliteFile);
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $pdo->exec('CREATE TABLE countries (
     alpha2 TEXT PRIMARY KEY,
     alpha3 TEXT NOT NULL UNIQUE,

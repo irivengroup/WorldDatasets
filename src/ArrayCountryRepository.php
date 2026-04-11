@@ -9,7 +9,7 @@ use Iriven\WorldDatasets\Contract\CountryRepositoryInterface;
 final class ArrayCountryRepository implements CountryRepositoryInterface
 {
     /** @var list<Country> */
-    private array $worldDatasets;
+    private array $countries;
 
     /** @var array<string,Country> */
     private array $byAlpha2 = [];
@@ -24,11 +24,11 @@ final class ArrayCountryRepository implements CountryRepositoryInterface
     private array $byName = [];
 
     /**
-     * @param list<Country> $worldDatasets
+     * @param list<Country> $countries
      */
-    public function __construct(array $worldDatasets)
+    public function __construct(array $countries)
     {
-        $this->countries = array_values($worldDatasets);
+        $this->countries = array_values($countries);
 
         foreach ($this->countries as $country) {
             $this->byAlpha2[$country->alpha2()] = $country;

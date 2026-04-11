@@ -16,7 +16,7 @@ final class CurrencyCollection implements Arrayable, \JsonSerializable
     private ?array $cachedExportArray = null;
 
     public function __construct(
-        private readonly array $worldDatasets,
+        private readonly array $countries,
     ) {
     }
 
