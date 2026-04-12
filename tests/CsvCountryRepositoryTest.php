@@ -43,7 +43,9 @@ final class CsvCountryRepositoryTest extends TestCase
             self::assertSame(1, $repo->count());
             self::assertSame('France', $repo->findOneByAlpha2('FR')?->name());
         } finally {
-            @unlink($path);
+            if (is_file($path)) {
+                self::assertTrue(unlink($path));
+            }
         }
     }
 }

@@ -34,7 +34,9 @@ final class SqliteConnectionFactoryTest extends TestCase
             $created = $factory->create($path);
             self::assertInstanceOf(PDO::class, $created);
         } finally {
-            @unlink($path);
+            if (is_file($path)) {
+                self::assertTrue(unlink($path));
+            }
         }
     }
 }
