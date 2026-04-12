@@ -36,7 +36,7 @@ final class CountriesCollectionAggregatorTest extends TestCase
         self::assertSame(['France', 'Germany', 'United States', 'Japan'], $aggregator->pluckNames($countries));
         self::assertSame(['FR', 'DE', 'US', 'JP'], $aggregator->pluckCodes($countries, CountryCodeFormat::ALPHA2));
         self::assertSame(['FRA', 'DEU', 'USA', 'JPN'], $aggregator->pluckCodes($countries, CountryCodeFormat::ALPHA3));
-        self::assertSame(['250', '276', '840', '392'], $aggregator->pluckCodes($countries, CountryCodeFormat::NUMERIC));
+        self::assertSame(['250', '276', '840', '392'], array_map('strval', $aggregator->pluckCodes($countries, CountryCodeFormat::NUMERIC)));
 
         self::assertSame([
             'FR' => 'France',

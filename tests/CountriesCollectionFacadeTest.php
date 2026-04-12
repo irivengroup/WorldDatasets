@@ -19,7 +19,7 @@ final class CountriesCollectionFacadeTest extends TestCase
         self::assertSame(['FR', 'DE', 'US', 'JP'], $collection->pluckCodes());
         self::assertSame(['France', 'Germany', 'United States', 'Japan'], $collection->pluckNames());
         self::assertSame(['FRA', 'DEU', 'JPN', 'USA'], $collection->alpha3()->codes());
-        self::assertSame(['250', '276', '392', '840'], $collection->numeric()->codes());
+        self::assertSame([250, 276, 392, 840], $collection->numeric()->codes());
 
         self::assertCount(2, $collection->inRegion('Europe')->values());
         self::assertCount(1, $collection->withCurrency('USD')->values());

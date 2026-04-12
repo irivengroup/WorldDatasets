@@ -20,7 +20,7 @@ final class CountriesCollectionExporterTest extends TestCase
         $api = $exporter->toApiArray($countries);
         self::assertCount(4, $api);
         self::assertSame('FR', $api[0]['alpha2']);
-        self::assertSame('France', $api[0]['name']);
+        self::assertSame('France', $api[0]['country']);
 
         $storage = $exporter->toStorageArray($countries);
         self::assertCount(4, $storage);

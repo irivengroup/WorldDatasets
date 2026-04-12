@@ -28,9 +28,9 @@ final class CountriesCollectionSorterTest extends TestCase
         self::assertSame(['DEU', 'FRA', 'JPN', 'USA'], array_map(static fn($c) => $c->alpha3(), $byAlpha3));
 
         $byNumeric = $sorter->sortByCode($countries, CountryCodeFormat::NUMERIC);
-        self::assertSame(['250', '276', '392', '840'], array_map(static fn($c) => $c->numeric(), $byNumeric));
+        self::assertSame(['250', '276', '392', '840'], array_map('strval', array_map(static fn($c) => $c->numeric(), $byNumeric)));
 
         $numeric = $sorter->sortByNumeric($countries);
-        self::assertSame(['250', '276', '392', '840'], array_map(static fn($c) => $c->numeric(), $numeric));
+        self::assertSame(['250', '276', '392', '840'], array_map('strval', array_map(static fn($c) => $c->numeric(), $numeric)));
     }
 }
