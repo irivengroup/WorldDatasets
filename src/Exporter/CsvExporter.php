@@ -9,7 +9,7 @@ use Iriven\WorldDatasets\Exception\ExportException;
 final class CsvExporter
 {
     /**
-     * @param list<array<string, mixed>> $rows
+     * @param array<array<string, mixed>> $rows
      */
     public function export(array $rows): string
     {
@@ -36,7 +36,7 @@ final class CsvExporter
     }
 
     /**
-     * @param list<array<string, mixed>> $rows
+     * @param array<array<string, mixed>> $rows
      */
     public function exportFile(string $path, array $rows): void
     {
