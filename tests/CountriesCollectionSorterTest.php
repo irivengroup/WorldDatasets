@@ -3,8 +3,9 @@
 declare(strict_types=1);
 
 namespace Iriven\WorldDatasets\Tests;
+use Iriven\WorldDatasets\Tests\Support\CountryFactoryTrait;
 
-use Iriven\WorldDatasets\Domain\CountriesCollectionSorter;
+use Iriven\WorldDatasets\Domain\CountriesCollection\CountriesCollectionSorter;
 use Iriven\WorldDatasets\Domain\CountriesCollection\CountryCodeFormat;
 use PHPUnit\Framework\TestCase;
 

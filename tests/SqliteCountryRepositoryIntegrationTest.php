@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace Iriven\WorldDatasets\Tests;
+use Iriven\WorldDatasets\Tests\Support\SqliteFixtureTrait;
 
 use Iriven\WorldDatasets\Infrastructure\Cache\ArrayCache;
 use Iriven\WorldDatasets\Infrastructure\Persistence\SqliteCountryRepository;
