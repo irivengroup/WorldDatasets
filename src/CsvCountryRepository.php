@@ -162,9 +162,8 @@ final class CsvCountryRepository implements CountryRepositoryInterface
         while (($row = fgetcsv($handle)) !== false) {
             $assoc = array_combine($headers, array_pad($row, $headerCount, ''));
 
-            if ($assoc === false) {
-                continue;
-            }
+            /** @var array<string, mixed> $assoc */
+            $assoc = $assoc;
 
             $countries[] = Country::fromDatabaseRow($assoc);
         }
