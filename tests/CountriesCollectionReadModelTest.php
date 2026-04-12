@@ -35,6 +35,7 @@ final class CountriesCollectionReadModelTest extends TestCase
         self::assertSame(['FRA', 'DEU', 'JPN', 'USA'], $codes);
 
         $list = $reader->list($countries, CountryCodeFormat::NUMERIC, new CountriesCollectionCache());
+        self::assertArrayHasKey('392', $list);
         self::assertSame('Japan', $list['392']);
 
         self::assertSame(['France', 'Germany', 'United States', 'Japan'], $reader->pluckNames($countries));

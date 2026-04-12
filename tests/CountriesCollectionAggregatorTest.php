@@ -19,7 +19,7 @@ final class CountriesCollectionAggregatorTest extends TestCase
         $countries = $this->makeCountries();
 
         $stats = $aggregator->stats($countries);
-        self::assertSame(4, $stats->countries());
+        self::assertSame(4, $stats->total());
         self::assertSame(3, $stats->regions());
         self::assertSame(3, $stats->currencies());
 
