@@ -14,8 +14,8 @@ use RuntimeException;
 
 final class WorldDatasetsFactory
 {
-    /** @var array<string, mixed>|null */
-    private static ?array $metaCache = null;
+    /** @var array<string, mixed> */
+    private static array $metaCache = [];
 
     public static function make(?string $sourcePath = null): WorldDatasetsService
     {
@@ -152,23 +152,20 @@ final class WorldDatasetsFactory
     /** @return array<string, mixed> */
     private static function metaData(): array
     {
-        if (self::$metaCache !== null) {
+        if (self::$metaCache !== []) {
             return self::$metaCache;
         }
 
         $metaPath = self::datasetMetaPath();
         if (!is_file($metaPath)) {
             self::$metaCache = [];
-            /** @var array<string, mixed> $metaCache */
-            $metaCache = self::$metaCache;
 
-            return $metaCache;
+            return self::$metaCache;
         }
 
         $data = json_decode((string) file_get_contents($metaPath), true);
-        self::$metaCache = is_array($data) ? $data : [];
 
-        return self::$metaCache;
+        return self::$metaCache = is_array($data) ? $data : [];
     }
 
     private static function detectSourceName(string $path): string
