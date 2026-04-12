@@ -549,12 +549,17 @@ final class SqliteCountryRepository implements CountryRepositoryInterface
 
     private function remember(string $cacheKey, callable $resolver): mixed
     {
-        if ($this->cache?->has($cacheKey)) {
-            return $this->cache->get($cacheKey);
+        $cache = $this->cache;
+
+        if ($cache !== null && $cache->has($cacheKey)) {
+            return $cache->get($cacheKey);
         }
 
         $value = $resolver();
-        $this->cache?->set($cacheKey, $value);
+
+        if ($cache !== null) {
+            $cache->set($cacheKey, $value);
+        }
 
         return $value;
     }
