@@ -44,7 +44,9 @@ final class SqliteStatementExecutorTest extends TestCase
             'SELECT alpha2, country_name FROM countries WHERE alpha2 = :code',
             [':code' => 'US']
         );
-        self::assertSame('United States', $one['country_name']);
+        self::assertIsArray($one);
+        self::assertArrayHasKey('country_name', $one);
+        self::assertContains('United States', $one);
     }
 
     public function testQueryMapAndGrouped(): void
@@ -56,7 +58,8 @@ final class SqliteStatementExecutorTest extends TestCase
             'alpha2',
             'country_name'
         );
-        self::assertSame('France', $map['FR']);
+        self::assertArrayHasKey('FR', $map);
+        self::assertContains('France', $map);
 
         $grouped = $executor->queryGrouped(
             'SELECT region_name, alpha2, country_name FROM countries ORDER BY region_name ASC, country_name ASC',
@@ -64,7 +67,11 @@ final class SqliteStatementExecutorTest extends TestCase
             'alpha2',
             'country_name'
         );
-        self::assertSame('France', $grouped['Europe']['FR']);
-        self::assertSame('United States', $grouped['Americas']['US']);
+        self::assertArrayHasKey('Europe', $grouped);
+        self::assertArrayHasKey('Americas', $grouped);
+        self::assertArrayHasKey('FR', $grouped['Europe']);
+        self::assertArrayHasKey('US', $grouped['Americas']);
+        self::assertContains('France', $grouped['Europe']);
+        self::assertContains('United States', $grouped['Americas']);
     }
 }

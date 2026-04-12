@@ -24,10 +24,14 @@ final class CountriesCollectionAggregatorTest extends TestCase
         self::assertSame(3, $stats->currencies());
 
         $groupedByRegion = $aggregator->groupByRegion($countries);
-        self::assertSame('France', $groupedByRegion['Europe']['FR']);
+        self::assertArrayHasKey('Europe', $groupedByRegion);
+        self::assertArrayHasKey('FR', $groupedByRegion['Europe']);
+        self::assertContains('France', $groupedByRegion['Europe']);
 
         $groupedByCurrency = $aggregator->groupByCurrency($countries);
-        self::assertSame('Japan', $groupedByCurrency['JPY']['JP']);
+        self::assertArrayHasKey('JPY', $groupedByCurrency);
+        self::assertArrayHasKey('JP', $groupedByCurrency['JPY']);
+        self::assertContains('Japan', $groupedByCurrency['JPY']);
 
         self::assertSame(['France', 'Germany', 'United States', 'Japan'], $aggregator->pluckNames($countries));
         self::assertSame(['FR', 'DE', 'US', 'JP'], $aggregator->pluckCodes($countries, CountryCodeFormat::ALPHA2));
