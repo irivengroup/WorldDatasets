@@ -56,10 +56,15 @@ final class WorldDatasetsFactory
         ));
     }
 
+    /**
+     * @param SimpleCacheInterface|null $cache Reserved for future repository-level cache injection.
+     */
     public static function makeRepository(string $path, ?SimpleCacheInterface $cache = null): CountryRepositoryInterface
     {
+        $cache ??= null;
         $filename = basename($path);
-        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $extensionValue = pathinfo($path, PATHINFO_EXTENSION);
+        $extension = strtolower(is_string($extensionValue) ? $extensionValue : '');
 
         return match (true) {
             $extension === 'json',
@@ -154,7 +159,10 @@ final class WorldDatasetsFactory
         $metaPath = self::datasetMetaPath();
         if (!is_file($metaPath)) {
             self::$metaCache = [];
-            return self::$metaCache;
+            /** @var array<string, mixed> $metaCache */
+            $metaCache = self::$metaCache;
+
+            return $metaCache;
         }
 
         $data = json_decode((string) file_get_contents($metaPath), true);
@@ -166,7 +174,8 @@ final class WorldDatasetsFactory
     private static function detectSourceName(string $path): string
     {
         $filename = basename($path);
-        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $extensionValue = pathinfo($path, PATHINFO_EXTENSION);
+        $extension = strtolower(is_string($extensionValue) ? $extensionValue : '');
 
         return match (true) {
             $extension === 'json',
