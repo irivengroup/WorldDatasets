@@ -10,7 +10,7 @@ interface CountryRepositoryInterface
 {
     public function count(): int;
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findAll(): array;
 
     public function findOneByAlpha2(string $alpha2): ?Country;
@@ -21,22 +21,22 @@ interface CountryRepositoryInterface
 
     public function findOneByName(string $name): ?Country;
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByName(string $name): array;
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function search(string $term): array;
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByCurrencyCode(string $currencyCode): array;
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByRegion(string $region): array;
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByPhoneCode(string $phoneCode): array;
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByTld(string $tld): array;
 
     /** @return array<string, string> */

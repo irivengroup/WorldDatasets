@@ -23,7 +23,7 @@ final class WorldDatasetsQuery
     public function limit(int $limit): self { return new self($this->collection->paginate(0, $limit)); }
     public function offset(int $offset, int $limit = PHP_INT_MAX): self { return new self($this->collection->paginate($offset, $limit)); }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function get(): array
     {
         return $this->collection->values();

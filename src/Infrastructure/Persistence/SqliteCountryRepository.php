@@ -69,10 +69,10 @@ final class SqliteCountryRepository implements CountryRepositoryInterface
         });
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findAll(): array
     {
-        /** @var list<Country> */
+        /** @var array<int, Country> */
         return $this->remember('countries.all', function (): array {
             return $this->fetchCountries(
                 'SELECT
@@ -131,13 +131,13 @@ final class SqliteCountryRepository implements CountryRepositoryInterface
         return $results[0] ?? null;
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByName(string $name): array
     {
         $normalized = trim($name);
         $cacheKey = 'countries.find_by_name.' . strtolower($normalized);
 
-        /** @var list<Country> */
+        /** @var array<int, Country> */
         return $this->remember($cacheKey, function () use ($normalized): array {
             return $this->fetchCountriesPrepared(
                 'SELECT
@@ -155,13 +155,13 @@ final class SqliteCountryRepository implements CountryRepositoryInterface
         });
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function search(string $term): array
     {
         $normalized = '%' . strtolower(trim($term)) . '%';
         $cacheKey = 'countries.search.' . md5($normalized);
 
-        /** @var list<Country> */
+        /** @var array<int, Country> */
         return $this->remember($cacheKey, function () use ($normalized): array {
             return $this->fetchCountriesPrepared(
                 'SELECT
@@ -185,25 +185,25 @@ final class SqliteCountryRepository implements CountryRepositoryInterface
         });
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByCurrencyCode(string $currencyCode): array
     {
         return $this->fetchByExactColumn('currency_code', strtoupper(trim($currencyCode)), true);
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByRegion(string $region): array
     {
         return $this->fetchByExactColumn('region_name', trim($region), false);
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByPhoneCode(string $phoneCode): array
     {
         return $this->fetchByExactColumn('phone_code', trim($phoneCode), false);
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByTld(string $tld): array
     {
         return $this->fetchByExactColumn('tld', $this->normalizer()->normalizeTld($tld), false);
@@ -370,7 +370,7 @@ final class SqliteCountryRepository implements CountryRepositoryInterface
         }
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     private function fetchByExactColumn(string $column, string $value, bool $normalizeAlpha = true): array
     {
         $allowedColumns = ['currency_code', 'region_name', 'phone_code', 'tld'];
@@ -380,7 +380,7 @@ final class SqliteCountryRepository implements CountryRepositoryInterface
 
         $cacheKey = sprintf('countries.filter.%s.%s', $column, strtolower($value));
 
-        /** @var list<Country> */
+        /** @var array<int, Country> */
         return $this->remember($cacheKey, function () use ($column, $value, $normalizeAlpha): array {
             $sqlValue = $normalizeAlpha ? strtoupper($value) : $value;
             return $this->fetchCountriesPrepared(
@@ -447,7 +447,7 @@ final class SqliteCountryRepository implements CountryRepositoryInterface
         });
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     private function fetchCountries(string $sql): array
     {
         try {
@@ -464,11 +464,11 @@ final class SqliteCountryRepository implements CountryRepositoryInterface
         }
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     /**
      * @param array<string, mixed> $params
      * @param array<string, int> $paramTypes
-     * @return list<Country>
+     * @return array<int, Country>
      */
     private function fetchCountriesPrepared(string $sql, array $params, array $paramTypes = []): array
     {

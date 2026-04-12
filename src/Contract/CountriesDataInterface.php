@@ -18,7 +18,7 @@ use Iriven\WorldDatasets\CountryCodeFormat;
 interface CountriesDataInterface extends Countable, IteratorAggregate
 {
     /**
-     * @return list<array<string, mixed>>
+     * @return array<int, array<string, mixed>>
      */
     public function all(): array;
 

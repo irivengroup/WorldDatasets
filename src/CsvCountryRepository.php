@@ -41,23 +41,23 @@ final class CsvCountryRepository implements CountryRepositoryInterface
     }
 
     public function count(): int { return $this->inner->count(); }
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findAll(): array { return $this->inner->findAll(); }
     public function findOneByAlpha2(string $alpha2): ?Country { return $this->inner->findOneByAlpha2($alpha2); }
     public function findOneByAlpha3(string $alpha3): ?Country { return $this->inner->findOneByAlpha3($alpha3); }
     public function findOneByNumeric(string $numeric): ?Country { return $this->inner->findOneByNumeric($numeric); }
     public function findOneByName(string $name): ?Country { return $this->inner->findOneByName($name); }
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByName(string $name): array { return $this->inner->findByName($name); }
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function search(string $term): array { return $this->inner->search($term); }
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByCurrencyCode(string $currencyCode): array { return $this->inner->findByCurrencyCode($currencyCode); }
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByRegion(string $region): array { return $this->inner->findByRegion($region); }
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByPhoneCode(string $phoneCode): array { return $this->inner->findByPhoneCode($phoneCode); }
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByTld(string $tld): array { return $this->inner->findByTld($tld); }
     /** @return array<string, string> */
     public function getAllCurrenciesCodeAndName(): array { return $this->inner->getAllCurrenciesCodeAndName(); }

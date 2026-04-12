@@ -8,7 +8,7 @@ use Iriven\WorldDatasets\Contract\CountryRepositoryInterface;
 
 final class ArrayCountryRepository implements CountryRepositoryInterface
 {
-    /** @var list<Country> */
+    /** @var array<int, Country> */
     private array $countries;
 
     /** @var array<string,Country> */
@@ -24,7 +24,7 @@ final class ArrayCountryRepository implements CountryRepositoryInterface
     private array $byName = [];
 
     /**
-     * @param list<Country> $countries
+     * @param array<int, Country> $countries
      */
     public function __construct(array $countries)
     {
@@ -43,7 +43,7 @@ final class ArrayCountryRepository implements CountryRepositoryInterface
         return count($this->countries);
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findAll(): array
     {
         return $this->countries;
@@ -69,14 +69,14 @@ final class ArrayCountryRepository implements CountryRepositoryInterface
         return $this->byName[mb_strtolower(trim($name))] ?? null;
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByName(string $name): array
     {
         $country = $this->findOneByName($name);
         return $country === null ? [] : [$country];
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function search(string $term): array
     {
         $needle = mb_strtolower(trim($term));
@@ -98,7 +98,7 @@ final class ArrayCountryRepository implements CountryRepositoryInterface
         return $result;
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByCurrencyCode(string $currencyCode): array
     {
         $needle = strtoupper(trim($currencyCode));
@@ -113,7 +113,7 @@ final class ArrayCountryRepository implements CountryRepositoryInterface
         return $result;
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByRegion(string $region): array
     {
         $needle = mb_strtolower(trim($region));
@@ -128,7 +128,7 @@ final class ArrayCountryRepository implements CountryRepositoryInterface
         return $result;
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByPhoneCode(string $phoneCode): array
     {
         $normalizer = new PhoneCodeNormalizer();
@@ -144,7 +144,7 @@ final class ArrayCountryRepository implements CountryRepositoryInterface
         return $result;
     }
 
-    /** @return list<Country> */
+    /** @return array<int, Country> */
     public function findByTld(string $tld): array
     {
         $normalizer = new TldNormalizer();

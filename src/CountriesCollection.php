@@ -29,7 +29,7 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
     private ?array $cachedGroupByCurrency = null;
 
     /**
-     * @param list<Country> $countries
+     * @param array<int, Country> $countries
      */
     public function __construct(
         private readonly array $countries,
