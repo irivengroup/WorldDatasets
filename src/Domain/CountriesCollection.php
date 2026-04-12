@@ -59,8 +59,8 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
 
     public function paginate(int $offset, int $limit): self { return $this->sequence()->paginate($this->countries, $offset, $limit, $this->format); }
 
-    public function first(): ?CountryInfoInfo { return $this->reader()->first($this->countries); }
-    public function last(): ?CountryInfoInfo { return $this->reader()->last($this->countries); }
+    public function first(): ?CountryInfo { return $this->reader()->first($this->countries); }
+    public function last(): ?CountryInfo { return $this->reader()->last($this->countries); }
     /** @return array<int, CountryInfo> */
     public function values(): array { return $this->reader()->values($this->countries); }
     /** @return array<string, string> */

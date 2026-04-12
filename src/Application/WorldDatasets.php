@@ -88,7 +88,7 @@ class WorldDatasets implements CountriesDataInterface, ReadonlyWorldDatasetsServ
         return $this->resolveCountry($code);
     }
 
-    public function findCountry(string $code): ?CountryInfoInfo
+    public function findCountry(string $code): ?CountryInfo
     {
         $code = trim($code);
 

@@ -321,7 +321,7 @@ final class SqliteCountryRepository implements CountryRepositoryInterface
         $cacheKey = sprintf('countries.lookup.%s.%s', $column, $value);
 
         /** @var ?CountryInfo */
-        return $this->remember($cacheKey, function () use ($column, $value): ?CountryInfoInfo {
+        return $this->remember($cacheKey, function () use ($column, $value): ?CountryInfo {
             $row = $this->executor->fetchOneRowPrepared(
                 $this->queryBuilder->findOneByColumn($column),
                 [':value' => $value]

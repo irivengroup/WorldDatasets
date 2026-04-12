@@ -38,10 +38,10 @@ final class JsonCountryRepository implements CountryRepositoryInterface
     public function count(): int { return $this->inner->count(); }
     /** @return array<int, CountryInfo> */
     public function findAll(): array { return $this->inner->findAll(); }
-    public function findOneByAlpha2(string $alpha2): ?CountryInfoInfo { return $this->inner->findOneByAlpha2($alpha2); }
-    public function findOneByAlpha3(string $alpha3): ?CountryInfoInfo { return $this->inner->findOneByAlpha3($alpha3); }
-    public function findOneByNumeric(string $numeric): ?CountryInfoInfo { return $this->inner->findOneByNumeric($numeric); }
-    public function findOneByName(string $name): ?CountryInfoInfo { return $this->inner->findOneByName($name); }
+    public function findOneByAlpha2(string $alpha2): ?CountryInfo { return $this->inner->findOneByAlpha2($alpha2); }
+    public function findOneByAlpha3(string $alpha3): ?CountryInfo { return $this->inner->findOneByAlpha3($alpha3); }
+    public function findOneByNumeric(string $numeric): ?CountryInfo { return $this->inner->findOneByNumeric($numeric); }
+    public function findOneByName(string $name): ?CountryInfo { return $this->inner->findOneByName($name); }
     /** @return array<int, CountryInfo> */
     public function findByName(string $name): array { return $this->inner->findByName($name); }
     /** @return array<int, CountryInfo> */
