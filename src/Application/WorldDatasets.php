@@ -83,12 +83,12 @@ class WorldDatasets implements CountriesDataInterface, ReadonlyWorldDatasetsServ
         }
     }
 
-    public function country(string $code): Country
+    public function country(string $code): CountryInfo
     {
         return $this->resolveCountry($code);
     }
 
-    public function findCountry(string $code): ?CountryInfo
+    public function findCountry(string $code): ?CountryInfoInfo
     {
         $code = trim($code);
 
@@ -183,7 +183,7 @@ class WorldDatasets implements CountriesDataInterface, ReadonlyWorldDatasetsServ
         return $this->repository->findByTld($this->tldNormalizer->normalize($tld));
     }
 
-    private function resolveCountry(string $code): Country
+    private function resolveCountry(string $code): CountryInfo
     {
         $code = trim($code);
 
