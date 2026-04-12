@@ -11,7 +11,7 @@ final class SqliteCountryHydrator
     /**
      * @param array<string, mixed> $row
      */
-    public function hydrate(array $row): Country
+    public function hydrate(array $row): CountryInfo
     {
         return CountryInfo::fromDatabaseRow($row);
     }

@@ -14,13 +14,13 @@ use Psr\Log\LoggerInterface;
 
 final class SqliteCountryRepository implements CountryRepositoryInterface
 {
-    /** @var array<string,Country> */
+    /** @var array<string,CountryInfo> */
     private array $byAlpha2 = [];
 
-    /** @var array<string,Country> */
+    /** @var array<string,CountryInfo> */
     private array $byAlpha3 = [];
 
-    /** @var array<string,Country> */
+    /** @var array<string,CountryInfo> */
     private array $byNumeric = [];
 
     private bool $indexesLoaded = false;

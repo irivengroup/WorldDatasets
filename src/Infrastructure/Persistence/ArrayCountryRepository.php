@@ -18,16 +18,16 @@ final class ArrayCountryRepository implements CountryRepositoryInterface
     /** @var array<int, CountryInfo> */
     private array $countries;
 
-    /** @var array<string,Country> */
+    /** @var array<string,CountryInfo> */
     private array $byAlpha2 = [];
 
-    /** @var array<string,Country> */
+    /** @var array<string,CountryInfo> */
     private array $byAlpha3 = [];
 
-    /** @var array<string,Country> */
+    /** @var array<string,CountryInfo> */
     private array $byNumeric = [];
 
-    /** @var array<string,Country> */
+    /** @var array<string,CountryInfo> */
     private array $byName = [];
 
     /**
