@@ -184,6 +184,7 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
             $this->cachedCodes = array_values(array_keys($this->list()));
         }
 
+        /** @var array<int, string> $codes */
         $codes = $this->cachedCodes;
 
         return array_values($codes);
@@ -353,6 +354,7 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
 
         $this->cachedExportArray = array_values($result);
 
+        /** @var array<int, array<string, mixed>> $exportArray */
         $exportArray = $this->cachedExportArray;
 
         return $exportArray;
@@ -393,6 +395,7 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
 
         $this->cachedStorageArray = array_values($result);
 
+        /** @var array<int, array<int, string>> $storageArray */
         $storageArray = $this->cachedStorageArray;
 
         return $storageArray;
@@ -405,6 +408,7 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
             $this->cachedApiArray = $this->exportArray();
         }
 
+        /** @var array<int, array<string, mixed>> $apiArray */
         $apiArray = $this->cachedApiArray;
 
         return array_values($apiArray);
