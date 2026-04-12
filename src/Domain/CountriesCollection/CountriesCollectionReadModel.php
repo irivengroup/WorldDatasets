@@ -112,7 +112,7 @@ final class CountriesCollectionReadModel
     /** @param array<int, CountryInfo> $countries */
     public function containsCountry(array $countries, callable|Country|string $value): bool
     {
-        if ($value instanceof CountryInfoInfo) {
+        if ($value instanceof CountryInfo) {
             return $this->contains($countries, $value->alpha2());
         }
 
