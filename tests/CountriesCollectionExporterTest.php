@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Iriven\WorldDatasets\Tests;
 use Iriven\WorldDatasets\Tests\Support\CountryFactoryTrait;
-use Iriven\WorldDatasets\Domain\CountryInfoFactoryTrait;
 
 use Iriven\WorldDatasets\Domain\CountriesCollection\CountriesCollectionExporter;
 use PHPUnit\Framework\TestCase;
 
 final class CountriesCollectionExporterTest extends TestCase
 {
-    use CountryFactoryTrait;
 
     public function testToApiArrayAndToStorageArray(): void
     {

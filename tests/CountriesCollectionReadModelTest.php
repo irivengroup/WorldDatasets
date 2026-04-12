@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Iriven\WorldDatasets\Tests;
 use Iriven\WorldDatasets\Tests\Support\CountryFactoryTrait;
-use Iriven\WorldDatasets\Domain\CountryInfoFactoryTrait;
 
 use Iriven\WorldDatasets\Domain\CountriesCollection\CountriesCollectionCache;
 use Iriven\WorldDatasets\Domain\CountriesCollection\CountriesCollectionReadModel;
@@ -13,7 +12,6 @@ use PHPUnit\Framework\TestCase;
 
 final class CountriesCollectionReadModelTest extends TestCase
 {
-    use CountryFactoryTrait;
 
     public function testReadModelMethods(): void
     {
