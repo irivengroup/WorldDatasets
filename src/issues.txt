@@ -1,0 +1,73 @@
+ src/CountriesCollection.php (issues)
+
+   /** @var array<string, string>|null */
+    private ?array $cachedList = null;
+    /** @var list<array<string, mixed>>|null */
+ The type Iriven\WorldDatasets\list was not found. Maybe you did not declare it correctly or list all dependencies?
+
+  private ?array $cachedExportArray = null;
+    /** @var list<list<string>>|null */
+    private ?array $cachedStorageArray = null;
+    public function first(): ?Country { return $this->countries[0] ?? null; }
+    public function last(): ?Country { return $this->countries === [] ? null : $this->countries[array_key_last($this->countries)]; }
+    /** @return list<Country> */
+    public function values(): array { return $this->countries; }
+Bug Best Practice introduced about 10 hours ago by 
+The expression return $this->countries returns the type array which is incompatible with the documented return type Iriven\WorldDatasets\list.
+    /** @return array<string, string> */
+    public function names(): array { return $this->cachedNames ??= $this->list(); }
+    /** @return list<string> */
+    public function codes(): array { return $this->cachedCodes ??= array_values(array_keys($this->list())); }
+Bug Best Practice introduced about 10 hours ago by 
+The expression return AssignCoalesceNode returns the type array which is incompatible with the documented return type Iriven\WorldDatasets\list.
+    public function count(): int { return count($this->countries); }
+    public function isEmpty(): bool { return $this->countries === []; }
+    public function isNotEmpty(): bool { return !$this->isEmpty(); }
+    /** @return list<self> */
+    public function chunk(int $size): array
+    {
+        return array_map(
+Bug Best Practice introduced about 10 hours ago by 
+The expression return array_map(functio...ntries, max(1, $size))) returns the type array which is incompatible with the documented return type Iriven\WorldDatasets\list.
+            fn(array $chunk): self => new self($chunk, $this->format),
+            array_chunk($this->countries, max(1, $size))
+        );
+    /** @return list<string> */
+    public function pluckNames(): array
+    {
+        return array_map(static fn(Country $country): string => $country->name(), $this->countries);
+Bug Best Practice introduced about 10 hours ago by 
+The expression return array_map(functio...*/ }, $this->countries) returns the type array which is incompatible with the documented return type Iriven\WorldDatasets\list.
+    }
+    /** @return list<string> */
+    public function pluckCodes(): array
+    {
+        return array_map(function (Country $country): string {
+Bug Best Practice introduced about 10 hours ago by 
+The expression return array_map(functio...*/ }, $this->countries) returns the type array which is incompatible with the documented return type Iriven\WorldDatasets\list.
+            return match ($this->format) {
+                CountryCodeFormat::ALPHA2 => $country->alpha2(),
+                CountryCodeFormat::ALPHA3 => $country->alpha3(),
+    public function exportArray(): array
+    {
+        if ($this->cachedExportArray !== null) {
+            return $this->cachedExportArray;
+Bug Best Practice introduced about 10 hours ago by 
+The expression return $this->cachedExportArray returns the type array which is incompatible with the documented return type Iriven\WorldDatasets\list.
+        }
+        $transformer = new CountryArrayTransformer();
+    public function toStorageArray(): array
+    {
+        if ($this->cachedStorageArray !== null) {
+            return $this->cachedStorageArray;
+Bug Best Practice introduced about 10 hours ago by 
+The expression return $this->cachedStorageArray returns the type array which is incompatible with the documented return type Iriven\WorldDatasets\list.
+        }
+        $transformer = new CountryArrayTransformer();
+            $result[] = $transformer->toStorageArray($country);
+        }
+        return $this->cachedStorageArray = $result;
+Bug Best Practice introduced about 10 hours ago by 
+The expression return $this->cachedStorageArray = $result returns the type array|array<mixed,array<integer,string>> which is incompatible with the documented return type Iriven\WorldDatasets\list.
+    }
+    /** @return list<array<string, mixed>> */

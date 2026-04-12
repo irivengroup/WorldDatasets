@@ -12,13 +12,13 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
 {
     /** @var array<string, string>|null */
     private ?array $cachedList = null;
-    /** @var list<array<string, mixed>>|null */
+    /** @var array<int, array<string, mixed>>|null */
     private ?array $cachedExportArray = null;
-    /** @var list<list<string>>|null */
+    /** @var array<int, array<int, string>>|null */
     private ?array $cachedStorageArray = null;
-    /** @var list<array<string, mixed>>|null */
+    /** @var array<int, array<string, mixed>>|null */
     private ?array $cachedApiArray = null;
-    /** @var list<string>|null */
+    /** @var array<int, string>|null */
     private ?array $cachedCodes = null;
     /** @var array<string, string>|null */
     private ?array $cachedNames = null;
@@ -173,12 +173,19 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
 
     public function first(): ?Country { return $this->countries[0] ?? null; }
     public function last(): ?Country { return $this->countries === [] ? null : $this->countries[array_key_last($this->countries)]; }
-    /** @return list<Country> */
-    public function values(): array { return $this->countries; }
+    /** @return array<int, Country> */
+    public function values(): array { return array_values($this->countries); }
     /** @return array<string, string> */
     public function names(): array { return $this->cachedNames ??= $this->list(); }
-    /** @return list<string> */
-    public function codes(): array { return $this->cachedCodes ??= array_values(array_keys($this->list())); }
+    /** @return array<int, string> */
+    public function codes(): array
+    {
+        if ($this->cachedCodes === null) {
+            $this->cachedCodes = array_values(array_keys($this->list()));
+        }
+
+        return array_values($this->cachedCodes);
+    }
     public function count(): int { return count($this->countries); }
     public function isEmpty(): bool { return $this->countries === []; }
     public function isNotEmpty(): bool { return !$this->isEmpty(); }
@@ -213,13 +220,13 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
         return false;
     }
 
-    /** @return list<self> */
+    /** @return array<int, self> */
     public function chunk(int $size): array
     {
-        return array_map(
+        return array_values(array_map(
             fn(array $chunk): self => new self($chunk, $this->format),
             array_chunk($this->countries, max(1, $size))
-        );
+        ));
     }
 
     public function stats(): WorldDatasetsStats
@@ -274,22 +281,22 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
         return $this->cachedGroupByCurrency = $result;
     }
 
-    /** @return list<string> */
+    /** @return array<int, string> */
     public function pluckNames(): array
     {
-        return array_map(static fn(Country $country): string => $country->name(), $this->countries);
+        return array_values(array_map(static fn(Country $country): string => $country->name(), $this->countries));
     }
 
-    /** @return list<string> */
+    /** @return array<int, string> */
     public function pluckCodes(): array
     {
-        return array_map(function (Country $country): string {
+        return array_values(array_map(function (Country $country): string {
             return match ($this->format) {
                 CountryCodeFormat::ALPHA2 => $country->alpha2(),
                 CountryCodeFormat::ALPHA3 => $country->alpha3(),
                 CountryCodeFormat::NUMERIC => $country->numeric(),
             };
-        }, $this->countries);
+        }, $this->countries));
     }
 
     /** @return array<mixed> */
@@ -329,11 +336,11 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
         return $this->cachedList = $result;
     }
 
-    /** @return list<array<string, mixed>> */
+    /** @return array<int, array<string, mixed>> */
     public function exportArray(): array
     {
         if ($this->cachedExportArray !== null) {
-            return $this->cachedExportArray;
+            return array_values($this->cachedExportArray);
         }
 
         $transformer = new CountryArrayTransformer();
@@ -342,7 +349,8 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
             $result[] = $transformer->toApiArray($country);
         }
 
-        return $this->cachedExportArray = $result;
+        $this->cachedExportArray = array_values($result);
+        return $this->cachedExportArray;
     }
 
     public function toJson(int $flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE): string
@@ -365,11 +373,11 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
         (new CsvExporter())->exportFile($path, $this->exportArray());
     }
 
-    /** @return list<list<string>> */
+    /** @return array<int, array<int, string>> */
     public function toStorageArray(): array
     {
         if ($this->cachedStorageArray !== null) {
-            return $this->cachedStorageArray;
+            return array_values($this->cachedStorageArray);
         }
 
         $transformer = new CountryArrayTransformer();
@@ -378,17 +386,22 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
             $result[] = $transformer->toStorageArray($country);
         }
 
-        return $this->cachedStorageArray = $result;
+        $this->cachedStorageArray = array_values($result);
+        return $this->cachedStorageArray;
     }
 
-    /** @return list<array<string, mixed>> */
+    /** @return array<int, array<string, mixed>> */
     public function toApiArray(): array
     {
-        return $this->cachedApiArray ??= $this->exportArray();
+        if ($this->cachedApiArray === null) {
+            $this->cachedApiArray = $this->exportArray();
+        }
+
+        return array_values($this->cachedApiArray);
     }
 
-    /** @return list<array<string, mixed>> */
+    /** @return array<int, array<string, mixed>> */
     public function toArray(): array { return $this->exportArray(); }
-    /** @return list<array<string, mixed>> */
+    /** @return array<int, array<string, mixed>> */
     public function jsonSerialize(): array { return $this->exportArray(); }
 }
