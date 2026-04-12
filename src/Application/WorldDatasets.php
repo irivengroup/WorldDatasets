@@ -212,26 +212,24 @@ class WorldDatasets implements CountriesDataInterface, ReadonlyWorldDatasetsServ
 
     private function normalizeFormat(int|string|CountryCodeFormat $format): CountryCodeFormat
     {
-        if ($format instanceof CountryCodeFormat) {
+        if ($format instanceof CountryInfoCodeFormat) {
             return $format;
         }
 
-        if (is_int($format)) {
-            return match ($format) {
+        if (is_int($format) || ctype_digit((string) $format)) {
+            return match ((int) $format) {
                 self::ALPHA2 => CountryCodeFormat::ALPHA2,
                 self::ALPHA3 => CountryCodeFormat::ALPHA3,
                 self::NUMERIC => CountryCodeFormat::NUMERIC,
-                default => throw new InvalidFormatException(sprintf('Unsupported country code format: %s', (string) $format)),
+                default => throw new InvalidFormatException(sprintf('Unsupported format: %s', (string) $format)),
             };
         }
 
-        $normalized = strtoupper(trim($format));
-
-        return match ($normalized) {
-            'ALPHA2', 'ALPHA-2', 'ALPHA_2', 'A2', 'ISO2', 'ISO-2', 'ISO_2' => CountryCodeFormat::ALPHA2,
-            'ALPHA3', 'ALPHA-3', 'ALPHA_3', 'A3', 'ISO3', 'ISO-3', 'ISO_3' => CountryCodeFormat::ALPHA3,
-            'NUMERIC', 'NUM', 'ISO-NUMERIC', 'ISO_NUMERIC' => CountryCodeFormat::NUMERIC,
-            default => throw new InvalidFormatException(sprintf('Unsupported country code format: %s', $format)),
+        return match (strtolower(trim((string) $format))) {
+            'alpha-2', 'alpha2', 'iso-2', 'iso2' => CountryCodeFormat::ALPHA2,
+            'alpha-3', 'alpha3', 'iso-3', 'iso3' => CountryCodeFormat::ALPHA3,
+            'numeric', 'num' => CountryCodeFormat::NUMERIC,
+            default => CountryCodeFormat::ALPHA2,
         };
     }
 }

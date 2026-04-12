@@ -19,7 +19,7 @@ trait CountryFactoryTrait
         string $currencyName = 'Euro',
         string $phoneCode = '33',
         string $tld = '.fr'
-    ): Country {
+    ): CountryInfo {
         return CountryInfo::fromDatabaseRow([
             'alpha2' => $alpha2,
             'alpha3' => $alpha3,

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 namespace Iriven\WorldDatasets\Tests;
-use Iriven\WorldDatasets\Tests\Support\CountryFactoryTrait;
+use Iriven\WorldDatasets\Domain\CountryInfoFactoryTrait;
 
 use Iriven\WorldDatasets\Domain\CountriesCollection;
 use PHPUnit\Framework\TestCase;
