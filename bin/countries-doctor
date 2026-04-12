@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Iriven\WorldDatasets\WorldDatasetsFactory;
+use Iriven\WorldDatasets\Application\Factory\WorldDatasetsFactory;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
