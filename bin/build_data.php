@@ -23,7 +23,7 @@ function write_if_changed(string $path, string $content): void
 }
 
 /**
- * @param list<array<string, string>> $normalizedRecords
+ * @param array<int, array<string, string>> $normalizedRecords
  */
 function rebuild_sqlite_from_records(string $sqliteFile, array $normalizedRecords): void
 {
