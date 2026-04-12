@@ -47,4 +47,4 @@ build:
               format: "clover"
 
 build_failure_conditions:
-  - 'project.metric_change("scrutinizer.test_coverage", < -0.10)'
+  - 'project.metric_change("scrutinizer.test_coverage", < 0)'

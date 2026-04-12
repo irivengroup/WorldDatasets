@@ -24,4 +24,4 @@ jobs:
       - run: composer run doctor
       - run: composer run analyse
       - run: composer test
-      # - run: git diff --exit-code
+      - run: git diff --exit-code
