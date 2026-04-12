@@ -95,11 +95,7 @@ final class DatasetValidator
     }
 
     /**
-     * @param array{
-     *     alpha2: array<string, string>,
-     *     alpha3: array<string, string>,
-     *     numeric: array<string, string>
-     * } $indexes
+     * @param array<string, array<string, string>> $indexes
      * @param array<int, array<string, mixed>> $duplicates
      */
     private function collectDuplicates(Country $country, array &$indexes, array &$duplicates): void

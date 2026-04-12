@@ -10,10 +10,13 @@ use Iriven\WorldDatasets\DatasetValidator;
 require_once __DIR__ . '/../vendor/autoload.php';
 
 /**
- * @param non-empty-string $path
+ * @param string $path
  */
 function write_if_changed(string $path, string $content): void
 {
+    if ($path == '') {
+        throw new \InvalidArgumentException('Path must not be empty.');
+    }
     $current = is_file($path) ? (string) file_get_contents($path) : null;
     if ($current === $content) {
         return;
