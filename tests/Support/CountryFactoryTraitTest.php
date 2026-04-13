@@ -10,8 +10,6 @@ use PHPUnit\Framework\TestCase;
 final class CountryFactoryTraitTest extends TestCase
 {
     use CountryFactoryTrait;
-
-
     public function testMakeCountryReturnsCountryInfo(): void
     {
         $country = $this->makeCountry('FR', 'FRA', '250', 'France');
@@ -26,9 +24,10 @@ final class CountryFactoryTraitTest extends TestCase
     public function testMakeCountriesReturnsExpectedFixtureSet(): void
     {
         $countries = $this->makeCountries();
+        $countriesList = is_array($countries) ? $countries : iterator_to_array($countries, false);
 
-        self::assertCount(4, $countries);
-        self::assertContainsOnlyInstancesOf(CountryInfo::class, $countries);
-        self::assertSame(['FR', 'DE', 'US', 'JP'], array_map(static fn (CountryInfo $country): string => $country->alpha2(), $countries));
+        self::assertCount(4, $countriesList);
+        self::assertContainsOnlyInstancesOf(CountryInfo::class, $countriesList);
+        self::assertSame(['FR', 'DE', 'US', 'JP'], array_map(static fn (CountryInfo $country): string => $country->alpha2(), $countriesList));
     }
 }
