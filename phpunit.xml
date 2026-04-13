@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="tests/Bootstrap.php" colors="true">
+    <testsuites>
+        <testsuite name="PHP Countries Data">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+<source>
+  <include>
+    <directory suffix=".php">src</directory>
+  </include>
+  <exclude>
+    <directory suffix=".php">src/Bridge/Laravel</directory>
+  </exclude>
+</source>
+
+</phpunit>
