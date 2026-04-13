@@ -10,6 +10,8 @@ use PHPUnit\Framework\TestCase;
 
 final class CountriesCollectionFacadeTest extends TestCase
 {
+    use CountryFactoryTrait;
+
 
     public function testFacadeDelegatesCorrectly(): void
     {

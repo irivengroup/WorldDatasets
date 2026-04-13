@@ -11,6 +11,8 @@ use PHPUnit\Framework\TestCase;
 
 final class CountriesCollectionSorterTest extends TestCase
 {
+    use CountryFactoryTrait;
+
 
     public function testSortByNameCodeAndNumeric(): void
     {

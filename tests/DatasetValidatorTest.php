@@ -12,6 +12,8 @@ use PHPUnit\Framework\TestCase;
 
 final class DatasetValidatorTest extends TestCase
 {
+    use CountryFactoryTrait;
+
 
     public function testValidDatasetProducesValidReport(): void
     {
