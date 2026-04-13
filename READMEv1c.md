@@ -1608,4 +1608,3 @@ Le workflow CI active maintenant explicitement Node 24 pour anticiper la dépré
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 ```
-## pg
