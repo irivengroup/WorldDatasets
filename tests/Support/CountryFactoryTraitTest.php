@@ -25,8 +25,8 @@ final class CountryFactoryTraitTest extends TestCase
 
     public function testMakeCountriesReturnsExpectedFixtureSet(): void
     {
-        $countries = $this->makeCountries();
-        $countriesList = $countries;
+        /** @var array<int, CountryInfo> $countriesList */
+        $countriesList = $this->makeCountries();
 
         self::assertCount(4, $countriesList);
         self::assertContainsOnlyInstancesOf(CountryInfo::class, $countriesList);
