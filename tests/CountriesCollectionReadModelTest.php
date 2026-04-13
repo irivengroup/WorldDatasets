@@ -12,7 +12,6 @@ use PHPUnit\Framework\TestCase;
 
 final class CountriesCollectionReadModelTest extends TestCase
 {
-    use CountryFactoryTrait;
 
     public function testReadModelMethods(): void
     {

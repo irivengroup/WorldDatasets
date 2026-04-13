@@ -10,7 +10,6 @@ use PHPUnit\Framework\TestCase;
 
 final class CountriesCollectionFilterTest extends TestCase
 {
-    use CountryFactoryTrait;
 
     public function testFilteringMethods(): void
     {

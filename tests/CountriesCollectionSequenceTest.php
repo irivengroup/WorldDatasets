@@ -11,7 +11,6 @@ use PHPUnit\Framework\TestCase;
 
 final class CountriesCollectionSequenceTest extends TestCase
 {
-    use CountryFactoryTrait;
 
     public function testSequenceMethods(): void
     {

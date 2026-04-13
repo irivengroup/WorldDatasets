@@ -11,7 +11,6 @@ use PHPUnit\Framework\TestCase;
 
 final class CountriesCollectionAggregatorTest extends TestCase
 {
-    use CountryFactoryTrait;
 
     public function testAggregationMethods(): void
     {

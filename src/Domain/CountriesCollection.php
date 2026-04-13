@@ -72,7 +72,7 @@ final class CountriesCollection implements Arrayable, \JsonSerializable
     public function isNotEmpty(): bool { return $this->reader()->isNotEmpty($this->countries); }
 
     public function contains(string $code): bool { return $this->reader()->contains($this->countries, $code); }
-    public function containsCountry(callable|CountryInfo|string $value): bool { return $this->reader()->containsCountry($this->countries, $value); }
+    public function containsCountry(callable|Country|string $value): bool { return $this->reader()->containsCountry($this->countries, $value); }
 
     /** @return array<int, self> */
     public function chunk(int $size): array { return $this->sequence()->chunk($this->countries, $size, $this->format); }
