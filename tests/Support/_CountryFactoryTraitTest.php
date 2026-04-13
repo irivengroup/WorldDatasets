@@ -10,8 +10,6 @@ use PHPUnit\Framework\TestCase;
 final class CountryFactoryTraitTest extends TestCase
 {
     use CountryFactoryTrait;
-
-
     public function testMakeCountryReturnsCountryInfo(): void
     {
         $country = $this->makeCountry('FR', 'FRA', '250', 'France');
