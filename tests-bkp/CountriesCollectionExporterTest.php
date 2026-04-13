@@ -12,7 +12,6 @@ final class CountriesCollectionExporterTest extends TestCase
 {
     use CountryFactoryTrait;
 
-
     public function testToApiArrayAndToStorageArray(): void
     {
         $exporter = new CountriesCollectionExporter();

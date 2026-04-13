@@ -13,7 +13,6 @@ final class CountriesCollectionSorterTest extends TestCase
 {
     use CountryFactoryTrait;
 
-
     public function testSortByNameCodeAndNumeric(): void
     {
         $sorter = new CountriesCollectionSorter();

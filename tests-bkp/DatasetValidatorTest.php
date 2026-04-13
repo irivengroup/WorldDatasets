@@ -14,7 +14,6 @@ final class DatasetValidatorTest extends TestCase
 {
     use CountryFactoryTrait;
 
-
     public function testValidDatasetProducesValidReport(): void
     {
         $validator = new DatasetValidator();

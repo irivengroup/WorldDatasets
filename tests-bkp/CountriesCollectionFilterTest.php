@@ -12,7 +12,6 @@ final class CountriesCollectionFilterTest extends TestCase
 {
     use CountryFactoryTrait;
 
-
     public function testFilteringMethods(): void
     {
         $filter = new CountriesCollectionFilter();

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Iriven\WorldDatasets\Tests;
 use Iriven\WorldDatasets\Tests\Support\CountryFactoryTrait;
 
+
 use Iriven\WorldDatasets\Domain\CountriesCollection\CountriesCollectionAggregator;
 use Iriven\WorldDatasets\Domain\CountriesCollection\CountryCodeFormat;
 use PHPUnit\Framework\TestCase;
@@ -12,7 +13,6 @@ use PHPUnit\Framework\TestCase;
 final class CountriesCollectionAggregatorTest extends TestCase
 {
     use CountryFactoryTrait;
-
 
     public function testAggregationMethods(): void
     {

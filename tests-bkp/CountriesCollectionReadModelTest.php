@@ -14,7 +14,6 @@ final class CountriesCollectionReadModelTest extends TestCase
 {
     use CountryFactoryTrait;
 
-
     public function testReadModelMethods(): void
     {
         $reader = new CountriesCollectionReadModel();
